@@ -40,7 +40,7 @@ terraform.rc
 configs.json
 
 **/out
-images/files/services/*
+packer/files/services/*
 !**/.gitkeep
 ansible/inventory.ini
 ansible/cluster.yml

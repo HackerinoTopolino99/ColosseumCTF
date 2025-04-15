@@ -7,18 +7,18 @@
 - hosts: localhost
   connection: local
   tasks:
-    - name: Init packer
-      shell: packer init ../images/templates
+    - name: Init packer project
+      shell: packer init ../packer/templates
 
-    - name: Deploy images
-      shell: packer build ../images/templates
+    - name: Deploy packer
+      shell: packer build ../packer/templates
 
-- hosts: localhost
-  connection: local
+- hosts: cluster_nodes
   roles:
     - terraform
 
 - hosts: vulnboxes
+  remote_user: "root"
   roles:
     - vulnbox
 
