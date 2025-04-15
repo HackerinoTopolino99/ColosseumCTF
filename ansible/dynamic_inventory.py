@@ -1,52 +1,48 @@
 #!/usr/bin/env python
-
 import ipaddress
 import json
 import sys
 
 
 def load_configs(config_file):
-    with open(config_file, 'r') as f:
+    with open(config_file, 'r', encoding='UTF-8') as f:
         configs = json.load(f)
-        
+
         variables = dict()
 
         variables["teams"] = configs["ad_platform"]["teams"]
         variables["player_number"] = configs["ad_platform"]["player_number"]
 
-        if type(variables["player_number"]) is not int or variables["player_number"] < 2:
+        if not isinstance(variables["player_number"], int) or variables["player_number"] < 2:
             raise ValueError("The value of 'player_number' must be an integer greater then 1")
-
         variables["public_ip"] = configs["ad_platform"]["public_ip"]
-        
+
         try:
             ipaddress.ip_address(variables["public_ip"])
-        except ValueError:
-            raise ValueError("The value of public_ip must be a valid IPv4 address")
-        
+        except ValueError as e:
+            raise ValueError("The value of public_ip must be a valid IPv4 address") from e
+
         variables["nodes"] = configs["incus_cluster"]["nodes"]
 
-        try:
-            if len(variables["nodes"]) == 2:
-                raise ValueError("Can't have a number of nodes equal to 2")
-            for n in variables["nodes"].values():
-                try:
-                    ipaddress.ip_address(n)
-                except ValueError:
-                    raise ValueError("The value of 'nodes' must be a list of valid IPv4 address")
-        except ValueError:
-            raise ValueError("The value of 'nodes' must be a list of valid IPv4 address")
+        if len(variables["nodes"]) == 2:
+            raise ValueError("Can't have a number of nodes equal to 2")
+
+        for n in variables["nodes"].values():
+            try:
+                ipaddress.ip_address(n)
+            except ValueError as e:
+                raise ValueError("The value of 'nodes' must be a list of valid IPv4 address") from e
 
         variables["remote"] = configs["incus_cluster"]["remote"]
-        
+
         variables["networks"] = configs["ad_platform"]["networks"]
 
         try:
             ipaddress.ip_network(variables["networks"]["gameserver-network"], False)
             ipaddress.ip_network(variables["networks"]["vulnboxes-network"], False)
             ipaddress.ip_network(variables["networks"]["vpn-servers-network"], False)
-        except ValueError:
-            raise ValueError("The value of each network must be a valid address in CIDR notation")
+        except ValueError as e:
+            raise ValueError("The value of each network must be a valid address in CIDR notation") from e
 
         variables["ansible_user"] = configs["incus_cluster"]["ansible_user"]
 
@@ -83,7 +79,7 @@ def generate_inventory(variables):
             }
         }
 
-    else: 
+    else:
         inventory_cluster = {
             "cluster_nodes": {
                 "hosts": cluster_nodes,
@@ -171,7 +167,7 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: sys.argv[0] [path_config_file]")
         sys.exit(-1)
-    
+
     variables = load_configs(sys.argv[1])
     generate_inventory(variables)
 
