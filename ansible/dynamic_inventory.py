@@ -3,6 +3,7 @@ import ipaddress
 import json
 import sys
 
+import ansible_runner
 
 def load_configs(config_file):
     with open(config_file, 'r', encoding='UTF-8') as f:
