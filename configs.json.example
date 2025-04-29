@@ -6,9 +6,9 @@
                         "team3"
                 ],
                 "networks": {
-                        "gameserver-network": "network",
-                        "vulnboxes-network": "network",
-                        "vpn-servers-networks": "network"
+                        "gameserver-network": "CIDR",
+                        "vulnboxes-network": "CIDR",
+                        "vpn-servers-networks": "CIDR"
                 },
                 "player_number": 6,
                 "public_ip": "0.0.0.0"
