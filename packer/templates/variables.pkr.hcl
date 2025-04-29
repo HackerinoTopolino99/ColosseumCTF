@@ -1,3 +1,5 @@
-locals {
-  config = jsondecode(file("../../configs.json"))
+variable remote {
+  type = string
+  default = "local"
+  description = "Incus remote name"
 }
