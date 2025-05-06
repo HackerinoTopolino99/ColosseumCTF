@@ -10,7 +10,7 @@ colosseum:
   player_number: 6
   public_ip: "0.0.0.0"
 
-incus_cluster:
+cluster:
   ansible_user: "user"
   nodes:
     node1: "ip_node1"
