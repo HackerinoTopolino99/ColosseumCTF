@@ -1,11 +1,11 @@
-# AD-Infrastructure
+# Colosseum
 
 ## Settings
 The configuration file (configs.json) is divided in 3 sections:
 - ad-platform
 - incus-cluster
 
-### ad-platform section
+### Colosseum section
 The ad-platform section has two config that must be specified:
 - teams: list. It's a list of the team's names that will partecipate to the competion.
 - subnet_ip: dict. It's a dictionary containing that must contain the following keys:
