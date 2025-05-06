@@ -15,12 +15,12 @@
 - name: Create Output Direcotry
   local_action:
     module: file
-    path: "{{ vulnboxes_password_output_directory }}"
+    path: "out/vm_passwords"
     state: directory
 
 - name: Save the password to a local file
   local_action:
     module: copy
     content: "{{ root_password }}\n"
-    dest: "{{ vulnboxes_password_output_directory }} {{ inventory_hostname }}.txt"
+    dest: "/out/vm_passwords/{{ inventory_hostname }}.txt"
     
