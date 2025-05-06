@@ -1,2 +1,1 @@
-vpn_client_files_output_directory: "out/vpns/"
 vpn_endpoint_address: ansible_default_ipv4.address

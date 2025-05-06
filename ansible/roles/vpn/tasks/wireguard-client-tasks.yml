@@ -15,7 +15,7 @@
     module: template
     src: wg0_client.conf.j2
     mode: 0600
-    dest: "{{ vpn_client_files_output_directory }}/{{ inventory_hostname }}/player{{ item }}.conf"
+    dest: "/out/vpn_conf/{{ inventory_hostname }}/player{{ item }}.conf"
     force: true
 
 - name: "Add peer to the server"
