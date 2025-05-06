@@ -57,7 +57,7 @@
       - "/tmp/ctf-gameserver_1.0_all.deb"
     state: absent
 
-- name: Delete default conf nginx
+- name: Disable default conf nginx
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent
