@@ -1,21 +1,16 @@
-- name: "Choose packages"
-  set_fact: 
-    ovnhost: "{{ 'openvswitch-ovn-host' if ansible_os_family == 'Suse' else 'ovn-host' }}"
-    ovncentral: "{{ 'openvswitch-ovn-central' if ansible_os_family == 'Suse' else 'ovn-central' }}"
-
 - name: Install ovn-host
   package:
     name:
-      - "{{ ovnhost }}"
+      - "ovn-host"
     state: latest
     update_cache: yes
   become: yes
 
 - block:
-  - name: Install ovn-central
+  - name: Install ovn-central on the first 3 nodes
     package:
       name:
-        - "{{ ovncentral }}"
+        - "ovncentral"
       state: latest
       update_cache: yes
     when: inventory_hostname == server_1 or inventory_hostname == server_2 or inventory_hostname == server_3
