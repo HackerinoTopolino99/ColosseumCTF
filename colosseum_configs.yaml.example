@@ -1,0 +1,20 @@
+colosseum:
+  teams:
+    - team1
+    - team2
+    - team3
+  networks:
+    gameserver-network: "CIDR"
+    vulnboxes-network: "CIDR"
+    vpn-servers-networks: "CIDR"
+  player_number: 6
+  public_ip: "0.0.0.0"
+
+incus_cluster:
+  ansible_user: "user"
+  nodes:
+    node1: "ip_node1"
+    node2: "ip_node2"
+    node3: "ip_node3"
+  instances_type: "container"
+  remote: "local"
