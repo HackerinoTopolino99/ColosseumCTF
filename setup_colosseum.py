@@ -62,44 +62,37 @@ def parse_colosseum_configs():
 
 def setup_incus(settings: dict) -> None:
     cluster_nodes = []
-    nodes_name = {}
+    nodes_name = "\n"
 
     for n in settings["nodes"].keys():
-        cluster_nodes.append(settings["nodes"][n])
-        nodes_name[settings["nodes"][n]] = n
-
-    cluster_address = cluster_nodes[0]
+        cluster_nodes.append(settings['nodes'][n])
+        nodes_name += f"      {settings['nodes'][n]}: {n}\n"
 
     if len(settings["nodes"]) == 1:
-        inventory = {
-            "cluster_nodes": {
-                "hosts": cluster_nodes,
-                "vars": {
-                    "server_1": cluster_nodes[0],
-                    "remote": settings["remote"],
-                    "ansible_connection": "ssh",
-                    "ansible_user": settings["ansible_user"],
-                    "cluster_address": cluster_address
-                }
-            }
-        }
+        inventory = f"""cluster_nodes:
+  hosts: {'      :\n'.join(cluster_nodes)}      :
+  vars:
+    server_1: {cluster_nodes[0]}
+    cluster_address: {cluster_nodes[0]}
+    remote: {settings["remote"]}
+    ansible_connection: ssh
+    ansible_user: {settings["ansible_user"]}
+"""
 
     else:
-        inventory = {
-            "cluster_nodes": {
-                "hosts": cluster_nodes,
-                "vars": {
-                    "nodes_names": nodes_name,
-                    "remote": settings["remote"],
-                    "server_1": cluster_nodes[0],
-                    "server_2": cluster_nodes[1],
-                    "server_3": cluster_nodes[2],
-                    "ansible_connection": "ssh",
-                    "ansible_user": settings["ansible_user"],
-                    "cluster_address": cluster_address
-                }
-            }
-        }
+        inventory = f"""cluster_nodes:
+  hosts:
+    {':\n    '.join(cluster_nodes)}:
+  vars:
+    cluster_address: {cluster_nodes[0]}
+    nodes_names: {nodes_name}
+    server_1: {cluster_nodes[0]}
+    server_2: {cluster_nodes[1]}
+    server_3: {cluster_nodes[2]}
+    remote: {settings["remote"]}
+    ansible_connection: ssh
+    ansible_user: {settings["ansible_user"]}
+"""
 
     runner = ansible_runner.run(
             private_data_dir="./ansible",
