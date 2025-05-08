@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from ipaddress import ip_address, IPv4Address, ip_network, IPv4Network
 
 import ansible_runner
@@ -19,7 +19,7 @@ def valid_ipv4_address(ip: str) -> bool:
         return False
 
 
-def valid_ipv4_netmask(network: str) -> bool:
+def valid_ipv4_network(network: str) -> bool:
     '''
     Check if a string is a valid IPv4 address
     '''
@@ -40,106 +40,88 @@ def parse_colosseum_configs():
         colosseum_configs = configurations["colosseum"]
         cluster_configs = configurations["cluster"]
 
-        for n in cluster_configs["nodes"]:
-            if not valid_ipv4_address(n):
-                raise ValueError(f"The value of {n} must be a valid IPv4 address")
+        if len(cluster_configs["nodes"]) == 2:
+            raise ValueError("Error: The number of nodes must not be 2")
+
+        if colosseum_configs["instances_type"] != "container" and colosseum_configs["instances_type"] != "virtual-machine":
+            raise ValueError("Error: The value of 'instance_type' must be 'virtual-machine' or 'container'")
+
+        for _ in cluster_configs["nodes"]:
+            if not valid_ipv4_address(_):
+                raise ValueError(f"Error: The value of {_} must be a valid IPv4 address")
+
+        for _ in colosseum_configs["config"]:
+            if not valid_ipv4_network(_):
+                raise ValueError(f"Error: The value of {_} must be a valid IPv4 network")
+
+        if not isinstance(colosseum_configs["player_number"], int) or colosseum_configs["player_number"] < 2:
+            raise ValueError("The value of 'player_number' must be an integer greater then 1")
 
         return colosseum_configs, cluster_configs
 
-        # variables = {}
 
-        # variables["teams"] = configs["ad_platform"]["teams"]
-        # variables["player_number"] = configs["ad_platform"]["player_number"]
-
-        # if not isinstance(variables["player_number"], int) or variables["player_number"] < 2:
-        #     raise ValueError("The value of 'player_number' must be an integer greater then 1")
-        # variables["public_ip"] = configs["ad_platform"]["public_ip"]
-
-        # try:
-        #     ipaddress.ip_address(variables["public_ip"])
-        # except ValueError as e:
-        #     raise ValueError("The value of public_ip must be a valid IPv4 address") from e
-
-        # variables["nodes"] = configs["incus_cluster"]["nodes"]
-
-        # if len(variables["nodes"]) == 2:
-        #     raise ValueError("Can't have a number of nodes equal to 2")
-
-        # for n in variables["nodes"].values():
-        #     try:
-        #         ipaddress.ip_address(n)
-        #     except ValueError as e:
-        #         raise ValueError("The value of 'nodes' must be a list of valid IPv4 address") from e
-
-        # variables["remote"] = configs["incus_cluster"]["remote"]
-
-        # variables["networks"] = configs["ad_platform"]["networks"]
-
-        # try:
-        #     ipaddress.ip_network(variables["networks"]["gameserver-network"], False)
-        #     ipaddress.ip_network(variables["networks"]["vulnboxes-network"], False)
-        #     ipaddress.ip_network(variables["networks"]["vpn-servers-network"], False)
-        # except ValueError as e:
-        #     raise ValueError("The value of each network must be a valid address in CIDR notation") from e
-
-        # variables["ansible_user"] = configs["incus_cluster"]["ansible_user"]
-
-        # variables["instances_type"] = configs["incus_cluster"]["instances_type"]
-
-        # if variables["instances_type"] != "virtual-machine" and variables["instances_type"] != "container":
-        #     raise ValueError("The value of 'instance_type' must be 'virtual-machine' or 'container'")
-
-        # return variables
-
-
-def generate_inventory(variables):
-    vulnboxes = ["nop-vulnbox"]
-    vpns = []
+def setup_incus(settings: dict) -> None:
     cluster_nodes = []
-    nodes_names = dict()
+    nodes_names = {}
 
-    for n in variables["nodes"].keys():
-        cluster_nodes.append(variables["nodes"][n])
-        nodes_names[variables["nodes"][n]] = n
+    for n in settings["nodes"].keys():
+        cluster_nodes.append(settings["nodes"][n])
+        nodes_names[settings["nodes"][n]] = n
 
     cluster_address = cluster_nodes[0]
 
-    if len(variables["nodes"]) == 1:
-        inventory_cluster = {
+    if len(settings["nodes"]) == 1:
+        inventory = {
             "cluster_nodes": {
                 "hosts": cluster_nodes,
-                "vars": {
+                "settings": {
                     "server_1": cluster_nodes[0],
-                    "remote": variables["remote"],
+                    "remote": settings["remote"],
                     "ansible_connection": "ssh",
-                    "networks": variables["networks"],
-                    "ansible_user": variables["ansible_user"]
+                    "networks": settings["networks"],
+                    "ansible_user": settings["ansible_user"],
+                    "cluster_address": cluster_address
                 }
             }
         }
 
     else:
-        inventory_cluster = {
+        inventory = {
             "cluster_nodes": {
                 "hosts": cluster_nodes,
-                "vars": {
+                "settings": {
                     "nodes_names": nodes_names,
-                    "remote": variables["remote"],
+                    "remote": settings["remote"],
                     "server_1": cluster_nodes[0],
                     "server_2": cluster_nodes[1],
                     "server_3": cluster_nodes[2],
-                    "networks": variables["networks"],
+                    "networks": settings["networks"],
                     "ansible_connection": "ssh",
-                    "ansible_user": variables["ansible_user"]
+                    "ansible_user": settings["ansible_user"],
+                    "cluster_address": cluster_address
                 }
             }
         }
 
-    for t in variables["teams"]:
+    runner = ansible_runner(
+            private_data_dir="./ansible/playbooks",
+            playbook="setup_incus.yaml",
+            inventory=inventory
+            )
+
+    if runner.rc != 0:
+        raise RuntimeError(f"The playbook setup_incus.yaml failed with error {runner.rc}")
+
+
+def deploy_colosseum(settings: dict) -> None:
+    vulnboxes = []
+    vpns = []
+
+    for t in settings["teams"]:
         vulnboxes.append(t + "-vulnbox")
         vpns.append(t + "-vpn")
 
-    ip_pattern = variables["networks"]["vulnboxes-network"].split(".")
+    ip_pattern = settings["networks"]["vulnboxes-network"].split(".")
     ip_pattern[2] = "%"
     ip_pattern[3] = "1"
     ip_pattern = ".".join(ip_pattern)
@@ -147,7 +129,7 @@ def generate_inventory(variables):
     inventory = {
         "faustgameserver": {
             "hosts": ["gameserver"],
-            "vars": {
+            "settings": {
                 "ctf_gameserver_db_pass_web": "password",
                 "ctf_gameserver_db_pass_controller": "password",
                 "ctf_gameserver_db_pass_submission": "password",
@@ -163,43 +145,44 @@ def generate_inventory(variables):
                 "ctf_gameserver_submission_listen_host": "0.0.0.0",
                 "ctf_gameserver_submission_listen_ports": [8080],
                 "ctf_gameserver_db_user_vpnstatus": "gameserver_vpnstatus",
-                "ctf_gameserver_web_allowed_hosts": ["{{ ansible_fqdn }}", variables["player_number"]],
+                "ctf_gameserver_web_allowed_hosts": ["{{ ansible_fqdn }}", settings["player_number"]],
                 "ansible_connection": "community.general.incus",
-                "ansible_incus_remote": variables["remote"]
+                "ansible_incus_remote": settings["remote"]
             }
         },
         "vulnboxes": {
             "hosts": vulnboxes,
-            "vars": {
+            "settings": {
                 "ansible_connection": "community.general.incus",
-                "ansible_incus_remote": variables["remote"]
+                "ansible_incus_remote": settings["remote"]
             }
         },
 
         "vpns": {
             "hosts": vpns,
-            "vars": {
-                "endpoint_address": variables["public_ip"],
-                "vpn_players": variables["player_number"],
+            "settings": {
+                "endpoint_address": settings["public_ip"],
+                "vpn_players": settings["player_number"],
                 "ansible_connection": "community.general.incus",
-                "ansible_incus_remote": variables["remote"],
+                "ansible_incus_remote": settings["remote"],
             }
         },
         "all": {
-            "vars": {
-                "cluster_address": cluster_address,
-                "instances_type": variables["instances_type"],
-                "networks": variables["networks"],
-                "remote": variables["remote"],
-                "teams": variables["teams"],
+            "settings": {
+                "instances_type": settings["instances_type"],
+                "networks": settings["networks"],
+                "remote": settings["remote"],
+                "teams": settings["teams"],
                 "ansible_connection": "local"
             }
         }
     }
 
-    inventory.update(inventory_cluster)
-    print(json.dumps(inventory, indent=2))
+    print(yaml.dump(inventory))
 
 
 if __name__ == '__main__':
-    variables = parse_colosseum_configs()
+    colosseum_configs, cluster_configs = parse_colosseum_configs()
+
+    setup_incus(cluster_configs)
+    #deploy_colosseum(colosseum_configs)
