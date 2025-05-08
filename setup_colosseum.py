@@ -63,7 +63,7 @@ def execute(cmd: list) -> None:
 
 
 def build_packer_templates(remote: str, instance_type: str) -> None:
-    if instance_type == "virtual_machine":
+    if instance_type == "virtual-machine":
         virtual_machine = "true"
     else:
         virtual_machine = "false"
@@ -74,14 +74,15 @@ def build_packer_templates(remote: str, instance_type: str) -> None:
     execute(init_command)
     execute(build_command)
 
-def parse_configurations():
-    with open("configurations["colosseum"].yaml", 'r', encoding='UTF-8') as f:
+
+def parse_colosseum_configurations():
+    with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
         configurations = yaml.safe_load(f)
 
         if len(configurations["cluster"]["nodes"]) == 2:
             raise ValueError("Error: The number of nodes must not be 2")
 
-        if configurations["colosseum"]["instances_type"] != "container" and colosseum_configs["instances_type"] != "virtual-machine":
+        if configurations["colosseum"]["instances_type"] != "container" and configurations["colosseum"]["instances_type"] != "virtual-machine":
             raise ValueError("Error: The value of 'instance_type' must be 'virtual-machine' or 'container'")
 
         for _ in configurations["cluster"]["nodes"]:
@@ -92,7 +93,7 @@ def parse_configurations():
             if not valid_ipv4_network(configurations["colosseum"]["networks"][_]):
                 raise ValueError(f"Error: The value of {configurations["colosseum"]["networks"][_]} must be a valid IPv4 network")
 
-        if not isinstance(configurations["colosseum"]["player_number"], int) or colosseum_configs["player_number"] < 2:
+        if not isinstance(configurations["colosseum"]["player_number"], int) or configurations["colosseum"]["player_number"] < 2:
             raise ValueError("The value of 'player_number' must be an integer greater then 1")
 
         return configurations["colosseum"], configurations["cluster"]
@@ -213,7 +214,7 @@ def deploy_colosseum(settings: dict) -> None:
 
 
 if __name__ == '__main__':
-    colosseum_configs, cluster_configurations = parse_colosseum_configs()
+    colosseum_configs, cluster_configurations = parse_colosseum_configurations()
 
     # setup_incus(cluster_configurations)
     build_packer_templates(colosseum_configs["remote"])
