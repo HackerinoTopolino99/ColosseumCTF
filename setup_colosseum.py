@@ -69,7 +69,7 @@ def build_packer_templates(remote: str, instance_type: str) -> None:
         virtual_machine = "false"
 
     init_command = ["packer", "init", "packer/templates"]
-    build_command = ['packer', 'build', '-var', f'"remote={remote}"', '-var', f'"virtual_machine={virtual_machine}', '.']
+    build_command = ['packer', 'build', '-var', f'remote={remote}', '-var', f'virtual_machine={virtual_machine}', 'packer/templates']
 
     execute(init_command)
     execute(build_command)
@@ -217,5 +217,5 @@ if __name__ == '__main__':
     colosseum_configs, cluster_configurations = parse_colosseum_configurations()
 
     # setup_incus(cluster_configurations)
-    build_packer_templates(colosseum_configs["remote"])
+    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
     # deploy_colosseum(colosseum_configs)
