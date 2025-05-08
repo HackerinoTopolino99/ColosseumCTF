@@ -10,7 +10,7 @@
   - name: Install ovn-central on the first 3 nodes
     package:
       name:
-        - "ovncentral"
+        - "ovn-central"
       state: latest
       update_cache: yes
     when: inventory_hostname == server_1 or inventory_hostname == server_2 or inventory_hostname == server_3
@@ -52,7 +52,8 @@
   - name: Install ovn packages
     package:
       name:
-        - "{{ ovncentral }}"
+        - "ovn-central"
+        - "ovn-host"
       state: latest
     become: yes
 
