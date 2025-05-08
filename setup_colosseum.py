@@ -2,11 +2,14 @@
 import ipaddress
 
 import ansible_runner
+import yaml
 
 
 def parse_colosseum_configs():
     with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
-        pass
+        configurations = yaml.safe_load(f)
+
+        return configurations["colosseum"], configurations["cluster"]
         # configs = json.load(f)
 
         # variables = {}
