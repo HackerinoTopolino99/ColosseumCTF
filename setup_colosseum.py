@@ -102,7 +102,7 @@ def setup_incus(settings: dict) -> None:
         }
 
     runner = ansible_runner.run(
-            private_data_dir="./ansible/playbooks",
+            private_data_dir="./ansible",
             playbook="setup_incus.yaml",
             inventory=inventory
             )
