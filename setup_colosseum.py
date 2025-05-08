@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import os
+import subprocess
+import sys
 from ipaddress import ip_address, IPv4Address, ip_network, IPv4Network
 
 import ansible_runner
 import yaml
-
 
 def valid_ipv4_address(ip: str) -> bool:
     '''
@@ -32,6 +34,42 @@ def valid_ipv4_network(network: str) -> bool:
     except ValueError:
         return False
 
+
+def execute(cmd: list) -> None:
+    # Source: https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
+    print(f"[i] Executing the following command: {' '.join(cmd)}")
+
+    try:
+        with subprocess.Popen(cmd,
+                              stdout=subprocess.PIPE,
+                              universal_newlines=True,
+                              text=True) as popen:
+
+            for stdout_line in iter(popen.stdout.readline, ""):
+                print(stdout_line, end="")
+
+            popen.stdout.close()
+            return_code = popen.wait()
+
+            if return_code:
+                raise subprocess.CalledProcessError(return_code, cmd)
+
+    except subprocess.CalledProcessError:
+        print("[!] Fatal Error!")
+        print(f"[!] {' '.join(cmd)} failed")
+        sys.exit(1)
+
+    print(f"[i] Command {' '.join(cmd)} executed successfully!")
+
+
+def build_packer_templates(remote: "str") -> None:
+    cwd = os.getcwd()
+    os.chdir("packer/templates")
+
+    execute("packer init .")
+    execute(f'packer build -var "remote={remote}" .')
+
+    os.chdir(cwd)
 
 def parse_colosseum_configs():
     with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
@@ -178,4 +216,5 @@ if __name__ == '__main__':
     colosseum_configs, cluster_configs = parse_colosseum_configs()
 
     setup_incus(cluster_configs)
+    build_packer_templates(colosseum_configs["remote"])
     #deploy_colosseum(colosseum_configs)
