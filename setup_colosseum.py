@@ -62,38 +62,40 @@ def execute(cmd: list) -> None:
     print(f"[i] Command {' '.join(cmd)} executed successfully!")
 
 
-def build_packer_templates(remote: "str") -> None:
+def build_packer_templates(remote: str, instance_type: str) -> None:
+    if instance_type == "virtual_machine":
+        virtual_machine = "true"
+    else:
+        virtual_machine = "false"
 
     init_command = ["packer", "init", "packer/templates"]
-    build_command = ['packer', 'build', '-var', f'"remote={remote}"']
+    build_command = ['packer', 'build', '-var', f'"remote={remote}"', '-var', f'"virtual_machine={virtual_machine}', '.']
+
     execute(init_command)
     execute(build_command)
 
-def parse_colosseum_configs():
-    with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
+def parse_configurations():
+    with open("configurations["colosseum"].yaml", 'r', encoding='UTF-8') as f:
         configurations = yaml.safe_load(f)
 
-        colosseum_configs = configurations["colosseum"]
-        cluster_configs = configurations["cluster"]
-
-        if len(cluster_configs["nodes"]) == 2:
+        if len(configurations["cluster"]["nodes"]) == 2:
             raise ValueError("Error: The number of nodes must not be 2")
 
-        if colosseum_configs["instances_type"] != "container" and colosseum_configs["instances_type"] != "virtual-machine":
+        if configurations["colosseum"]["instances_type"] != "container" and colosseum_configs["instances_type"] != "virtual-machine":
             raise ValueError("Error: The value of 'instance_type' must be 'virtual-machine' or 'container'")
 
-        for _ in cluster_configs["nodes"]:
-            if not valid_ipv4_address(cluster_configs["nodes"][_]):
-                raise ValueError(f"Error: The value of {cluster_configs["nodes"][_]} must be a valid IPv4 address")
+        for _ in configurations["cluster"]["nodes"]:
+            if not valid_ipv4_address(configurations["cluster"]["nodes"][_]):
+                raise ValueError(f"Error: The value of {configurations["cluster"]["nodes"][_]} must be a valid IPv4 address")
 
-        for _ in colosseum_configs["networks"]:
-            if not valid_ipv4_network(colosseum_configs["networks"][_]):
-                raise ValueError(f"Error: The value of {colosseum_configs["networks"][_]} must be a valid IPv4 network")
+        for _ in configurations["colosseum"]["networks"]:
+            if not valid_ipv4_network(configurations["colosseum"]["networks"][_]):
+                raise ValueError(f"Error: The value of {configurations["colosseum"]["networks"][_]} must be a valid IPv4 network")
 
-        if not isinstance(colosseum_configs["player_number"], int) or colosseum_configs["player_number"] < 2:
+        if not isinstance(configurations["colosseum"]["player_number"], int) or colosseum_configs["player_number"] < 2:
             raise ValueError("The value of 'player_number' must be an integer greater then 1")
 
-        return colosseum_configs, cluster_configs
+        return configurations["colosseum"], configurations["cluster"]
 
 
 def setup_incus(settings: dict) -> None:
@@ -211,8 +213,8 @@ def deploy_colosseum(settings: dict) -> None:
 
 
 if __name__ == '__main__':
-    colosseum_configs, cluster_configs = parse_colosseum_configs()
+    colosseum_configs, cluster_configurations = parse_colosseum_configs()
 
-    setup_incus(cluster_configs)
+    # setup_incus(cluster_configurations)
     build_packer_templates(colosseum_configs["remote"])
-    #deploy_colosseum(colosseum_configs)
+    # deploy_colosseum(colosseum_configs)
