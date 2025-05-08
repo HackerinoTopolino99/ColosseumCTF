@@ -1,9 +1,9 @@
 source "incus" "vulnbox" {
   image = "images:debian/12"
   output_image = "vulnbox"
-  container_name = "${var.remote.remote}:vulnbox"
+  container_name = "${var.remote}:vulnbox"
   reuse = true
-  publish_remote_name = var.remote.remote
+  publish_remote_name = var.remote
 
   publish_properties =  {
     description = "Image for the servers where the vulnerable services will be hosted"
@@ -28,7 +28,6 @@ build {
       "echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config"
     ]
   }
-completion
   provisioner "file" {
     source = "${path.root}/../files/services/"
     destination = "/root"
