@@ -39,7 +39,6 @@ override.tf.json
 terraform.rc
 
 **/.terraform.lock.hcl
-configs.json
 
 ## Python
 # Byte-compiled / optimized / DLL files
@@ -218,8 +217,7 @@ cython_debug/
 .pypirc
 
 ## Custom
-
+colosseum_configs.yaml
 !**/.gitkeep
 **/out
 packer/files/services/*
-ansible/cluster.yml
