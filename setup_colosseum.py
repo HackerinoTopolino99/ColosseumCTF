@@ -76,7 +76,8 @@ def setup_incus(settings: dict) -> None:
     cluster_address: {cluster_nodes[0]}
     remote: {settings["remote"]}
     ansible_connection: ssh
-    ansible_user: {settings["ansible_user"]}
+    ansible_user: {settings["ansible_user"]},
+    ansible_python_interpreter = python3
 """
 
     else:
@@ -91,7 +92,8 @@ def setup_incus(settings: dict) -> None:
     server_3: {cluster_nodes[2]}
     remote: {settings["remote"]}
     ansible_connection: ssh
-    ansible_user: {settings["ansible_user"]}
+    ansible_user: {settings["ansible_user"]},
+    ansible_python_interpreter = python3
 """
 
     runner = ansible_runner.run(
