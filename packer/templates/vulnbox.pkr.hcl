@@ -4,6 +4,7 @@ source "incus" "vulnbox" {
   container_name = "${var.remote}:vulnbox"
   reuse = true
   publish_remote_name = var.remote
+  virtual_machine = var.virtual_machine
 
   publish_properties =  {
     description = "Image for the servers where the vulnerable services will be hosted"

@@ -4,6 +4,7 @@ source "incus" "gameserver" {
   container_name = "${var.remote}:gameserver"
   reuse = true
   publish_remote_name = var.remote
+  virtual_machine = var.virtual_machine
 
   publish_properties =  {
     description = "Image for the gameserver"
