@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-import os
 import subprocess
 import sys
 from ipaddress import ip_address, IPv4Address, ip_network, IPv4Network
 
 import ansible_runner
 import yaml
+
 
 def valid_ipv4_address(ip: str) -> bool:
     '''
