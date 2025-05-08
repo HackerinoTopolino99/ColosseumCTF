@@ -1,6 +1,0 @@
-- hosts: cluster_nodes
-  gather_facts: true
-  any_errors_fatal: true
-  roles:
-    - cluster.ovn
-    - cluster.incus
