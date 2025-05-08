@@ -113,7 +113,7 @@ def setup_incus(settings: dict) -> None:
     remote: {settings["remote"]}
     ansible_connection: ssh
     ansible_user: {settings["ansible_user"]},
-    ansible_python_interpreter = python3
+    ansible_python_interpreter: python3
 """
 
     else:
@@ -129,7 +129,7 @@ def setup_incus(settings: dict) -> None:
     remote: {settings["remote"]}
     ansible_connection: ssh
     ansible_user: {settings["ansible_user"]},
-    ansible_python_interpreter = python3
+    ansible_python_interpreter: python3
 """
 
     runner = ansible_runner.run(
