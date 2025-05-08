@@ -7,6 +7,7 @@ colosseum:
     gameserver-network: "CIDR"
     vulnboxes-network: "CIDR"
     vpn-servers-networks: "CIDR"
+  instances_type: "container"
   player_number: 6
   public_ip: "0.0.0.0"
 
@@ -16,5 +17,4 @@ cluster:
     node1: "ip_node1"
     node2: "ip_node2"
     node3: "ip_node3"
-  instances_type: "container"
   remote: "local"
