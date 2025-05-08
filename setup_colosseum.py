@@ -47,12 +47,12 @@ def parse_colosseum_configs():
             raise ValueError("Error: The value of 'instance_type' must be 'virtual-machine' or 'container'")
 
         for _ in cluster_configs["nodes"]:
-            if not valid_ipv4_address(_):
-                raise ValueError(f"Error: The value of {_} must be a valid IPv4 address")
+            if not valid_ipv4_address(cluster_configs["nodes"][_]):
+                raise ValueError(f"Error: The value of {cluster_configs["nodes"][_]} must be a valid IPv4 address")
 
-        for _ in colosseum_configs["config"]:
-            if not valid_ipv4_network(_):
-                raise ValueError(f"Error: The value of {_} must be a valid IPv4 network")
+        for _ in colosseum_configs["networks"]:
+            if not valid_ipv4_network(colosseum_configs["networks"][_]):
+                raise ValueError(f"Error: The value of {colosseum_configs["networks"][_]} must be a valid IPv4 network")
 
         if not isinstance(colosseum_configs["player_number"], int) or colosseum_configs["player_number"] < 2:
             raise ValueError("The value of 'player_number' must be an integer greater then 1")
@@ -78,7 +78,6 @@ def setup_incus(settings: dict) -> None:
                     "server_1": cluster_nodes[0],
                     "remote": settings["remote"],
                     "ansible_connection": "ssh",
-                    "networks": settings["networks"],
                     "ansible_user": settings["ansible_user"],
                     "cluster_address": cluster_address
                 }
@@ -95,7 +94,6 @@ def setup_incus(settings: dict) -> None:
                     "server_1": cluster_nodes[0],
                     "server_2": cluster_nodes[1],
                     "server_3": cluster_nodes[2],
-                    "networks": settings["networks"],
                     "ansible_connection": "ssh",
                     "ansible_user": settings["ansible_user"],
                     "cluster_address": cluster_address
@@ -103,7 +101,7 @@ def setup_incus(settings: dict) -> None:
             }
         }
 
-    runner = ansible_runner(
+    runner = ansible_runner.run(
             private_data_dir="./ansible/playbooks",
             playbook="setup_incus.yaml",
             inventory=inventory
