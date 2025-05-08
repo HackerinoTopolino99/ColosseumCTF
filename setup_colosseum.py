@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ipaddress import ip_address, IPv4Address
+from ipaddress import ip_address, IPv4Address, ip_network, IPv4Network
 
 import ansible_runner
 import yaml
@@ -19,6 +19,20 @@ def valid_ipv4_address(ip: str) -> bool:
         return False
 
 
+def valid_ipv4_netmask(network: str) -> bool:
+    '''
+    Check if a string is a valid IPv4 address
+    '''
+    try:
+        if isinstance(ip_network(network), IPv4Network):
+            return True
+
+        return False
+
+    except ValueError:
+        return False
+
+
 def parse_colosseum_configs():
     with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
         configurations = yaml.safe_load(f)
@@ -30,7 +44,7 @@ def parse_colosseum_configs():
             if not valid_ipv4_address(n):
                 raise ValueError(f"The value of {n} must be a valid IPv4 address")
 
-        return configurations["colosseum"], configurations["cluster"]
+        return colosseum_configs, cluster_configs
 
         # variables = {}
 
