@@ -63,13 +63,11 @@ def execute(cmd: list) -> None:
 
 
 def build_packer_templates(remote: "str") -> None:
-    cwd = os.getcwd()
-    os.chdir("packer/templates")
 
-    execute("packer init .")
-    execute(f'packer build -var "remote={remote}" .')
-
-    os.chdir(cwd)
+    init_command = ["packer", "init", "packer/templates"]
+    build_command = ['packer', 'build', '-var', f'"remote={remote}"']
+    execute(init_command)
+    execute(build_command)
 
 def parse_colosseum_configs():
     with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
