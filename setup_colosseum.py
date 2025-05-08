@@ -62,11 +62,11 @@ def parse_colosseum_configs():
 
 def setup_incus(settings: dict) -> None:
     cluster_nodes = []
-    nodes_names = {}
+    nodes_name = {}
 
     for n in settings["nodes"].keys():
         cluster_nodes.append(settings["nodes"][n])
-        nodes_names[settings["nodes"][n]] = n
+        nodes_name[settings["nodes"][n]] = n
 
     cluster_address = cluster_nodes[0]
 
@@ -74,7 +74,7 @@ def setup_incus(settings: dict) -> None:
         inventory = {
             "cluster_nodes": {
                 "hosts": cluster_nodes,
-                "settings": {
+                "vars": {
                     "server_1": cluster_nodes[0],
                     "remote": settings["remote"],
                     "ansible_connection": "ssh",
@@ -88,8 +88,8 @@ def setup_incus(settings: dict) -> None:
         inventory = {
             "cluster_nodes": {
                 "hosts": cluster_nodes,
-                "settings": {
-                    "nodes_names": nodes_names,
+                "vars": {
+                    "nodes_names": nodes_name,
                     "remote": settings["remote"],
                     "server_1": cluster_nodes[0],
                     "server_2": cluster_nodes[1],
