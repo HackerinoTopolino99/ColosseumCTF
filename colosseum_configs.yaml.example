@@ -10,6 +10,7 @@ colosseum:
   instances_type: "container"
   player_number: 6
   public_ip: "0.0.0.0"
+  remote: "local"
 
 cluster:
   ansible_user: "user"
