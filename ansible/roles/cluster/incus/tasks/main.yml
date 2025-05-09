@@ -7,6 +7,10 @@
     update_cache: yes
   become: yes
 
+- name: "Set subuid and subgid for use unpriviliged containers"
+  shell: "usermod -v 1000000-1000999999 -w 1000000-1000999999 root"
+  become: yes
+
 - name: "Install rsync for clustering"
   apt:
     name: rsync
