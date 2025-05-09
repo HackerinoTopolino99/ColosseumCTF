@@ -1,42 +1,44 @@
-- block:
-  - name: Create apt keyring path
-    file:
-      path: /etc/apt/keyrings/
-      mode: 0755
-      state: directory
+- name: Check ansible distribution
+  meta: end_play
+  when: 'ansible_distribution not in ("Debian", "Ubuntu")' 
 
-  - name: Add Zabbly repository key
-    uri:
-      url: https://pkgs.zabbly.com/key.asc
-      dest: /etc/apt/keyrings/ansible-zabbly.asc
-    notify: Update apt
+- name: Create apt keyring path
+  file:
+    path: /etc/apt/keyrings/
+    mode: 0755
+    state: directory
 
-  - name: Get DPKG architecture
-    shell: dpkg --print-architecture
-    register: dpkg_architecture
-    changed_when: false
-    check_mode: no
+- name: Add Zabbly repository key
+  uri:
+    url: https://pkgs.zabbly.com/key.asc
+    dest: /etc/apt/keyrings/ansible-zabbly.asc
+  become: yes
 
-  - name: Add Zabbly package source
-    template:
-      src: zabbly_repository.j2
-      dest: /etc/apt/sources.list.d/ansible-zabbly-incus-stable.sources
+- name: Get DPKG architecture
+  shell: dpkg --print-architecture
+  register: dpkg_architecture
+  changed_when: false
+  check_mode: no
+
+- name: Add Zabbly package source
+  template:
+    src: zabbly_repository.j2
+    dest: /etc/apt/sources.list.d/ansible-zabbly-incus-stable.sources
+  become: yes
   
-  - name: Install incus
-    apt:
-      name: incus
+- name: Install Incus
+  apt:
+    name: incus
     state: latest
     update_cache: yes
+  become: yes
 
-
-  when: 'ansible_distribution in ("Debian", "Ubuntu")' 
-
-- name: "Install cluster requirements"
+- name: "Install virtual machine requirements"
   apt:
     name:
       - qemu-system
+      - qemu-utils
     state: latest
-    update_cache: yes
   become: yes
 
 - name: "Set subuid and subgid for use unpriviliged containers"
@@ -47,7 +49,6 @@
   apt:
     name: rsync
     state: latest
-    update_cache: yes
   become: yes
   when: ansible_play_hosts | length > 2
 
