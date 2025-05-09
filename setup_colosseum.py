@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import subprocess
 import sys
 from ipaddress import ip_address, IPv4Address, ip_network, IPv4Network
@@ -214,8 +215,17 @@ def deploy_colosseum(settings: dict) -> None:
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--setup-incus",
+                        type=bool,
+                        help="Boolean value for setup incus or not")
+
+    args = parser.parse_args()
+
     colosseum_configs, cluster_configurations = parse_colosseum_configurations()
 
-    # setup_incus(cluster_configurations)
+    if args.setup_incus:
+        setup_incus(cluster_configurations)
+
     build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
     # deploy_colosseum(colosseum_configs)
