@@ -1,7 +1,39 @@
+- block:
+  - name: Create apt keyring path
+    file:
+      path: /etc/apt/keyrings/
+      mode: 0755
+      state: directory
+
+  - name: Add Zabbly repository key
+    uri:
+      url: https://pkgs.zabbly.com/key.asc
+      dest: /etc/apt/keyrings/ansible-zabbly.asc
+    notify: Update apt
+
+  - name: Get DPKG architecture
+    shell: dpkg --print-architecture
+    register: dpkg_architecture
+    changed_when: false
+    check_mode: no
+
+  - name: Add Zabbly package source
+    template:
+      src: zabbly_repository.j2
+      dest: /etc/apt/sources.list.d/ansible-zabbly-incus-stable.sources
+  
+  - name: Install incus
+    apt:
+      name: incus
+    state: latest
+    update_cache: yes
+
+
+  when: 'ansible_distribution in ("Debian", "Ubuntu")' 
+
 - name: "Install cluster requirements"
   apt:
     name:
-      - incus
       - qemu-system
     state: latest
     update_cache: yes
