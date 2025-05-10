@@ -1,6 +1,15 @@
-- hosts: cluster_nodes
-  gather_facts: true
-  any_errors_fatal: true
+- hosts: localhost
+  gather_facts: false
   roles:
-    - { role: cluster/ovn }
-    - { role: cluster/incus }
+    - { role: colosseum/terraform }
+
+- hosts: vulnboxes
+  gather_facts: false
+  roles:
+    - { role: colosseum/vulnboxes }
+
+- hosts: wireguard_servers
+  gather_facts: false
+  roles:
+    - { role: colosseum/wireguard_servers }
+
