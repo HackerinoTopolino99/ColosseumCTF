@@ -1,9 +1,0 @@
-- name: Restart Nginx
-  systemd_service:
-    name: nginx
-    state: restarted
-    
-- name: Restart Uwsgi
-  systemd_service:
-    name: uwsgi
-    state: restarted
