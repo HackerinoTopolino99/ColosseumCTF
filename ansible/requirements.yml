@@ -1,3 +1,0 @@
-collections:
-  - name: fausecteam.ctf_gameserver_ansible
-    src: https://github.com/fausecteam/ctf-gameserver-ansible
