@@ -1,13 +1,12 @@
 - name: Deploy of the AD platform
   community.general.terraform:
-    project_path: "files/colosseum-infrastructure"
+    project_path: "{{ role_path }}/files/colosseum-infrastracture"
     force_init: true
     state: present
     complex_vars: true
     variables:
       cluster_address: "{{ cluster_address }}"
       instances_type: "{{ instances_type }}"
-      networks: "{{ networks }}"
       remote: "{{ remote }}"
       teams: "{{ teams }}"
   run_once: true
