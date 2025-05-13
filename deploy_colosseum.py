@@ -143,12 +143,12 @@ def setup_incus(settings: dict) -> None:
 
 
 def deploy_colosseum(settings: dict) -> None:
-    vulnboxes = []
-    wireguard_servers = []
+    vulnboxes = {}
+    wireguard_servers = {}
 
     for t in settings["teams"]:
-        vulnboxes.append(t + "-vulnbox")
-        wireguard_servers.append(t + "-vpn")
+        vulnboxes[t + "-vulnbox"] = None
+        wireguard_servers[t + "-vpn"] = None
 
     inventory = {
         "vulnboxes": {
@@ -174,8 +174,6 @@ def deploy_colosseum(settings: dict) -> None:
         }
     }
 
-    print(yaml.dump(inventory))
-
     runner = ansible_runner.run(
             private_data_dir="./ansible",
             playbook="deploy_colosseum.yaml",
@@ -189,7 +187,7 @@ def deploy_colosseum(settings: dict) -> None:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--setup-incus",
-                        type=bool,
+                        action="store_true",
                         help="Boolean value for setup incus or not")
 
     args = parser.parse_args()
@@ -199,5 +197,5 @@ if __name__ == '__main__':
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-    # build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
+    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
     deploy_colosseum(colosseum_configs)
