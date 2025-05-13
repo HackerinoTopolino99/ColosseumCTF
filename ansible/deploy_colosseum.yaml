@@ -1,6 +1,6 @@
 - hosts: localhost
   gather_facts: false
-  ansible_connection: local
+  connection: local
   roles:
     - { role: colosseum/terraform }
 
@@ -8,7 +8,7 @@
   gather_facts: false
   roles:
     - { role: colosseum/vulnboxes }
-
+ 
 - hosts: wireguard_servers
   gather_facts: false
   roles:
