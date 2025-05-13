@@ -1,6 +1,6 @@
 - name: Deploy of the AD platform
   community.general.terraform:
-    project_path: "{{ role_path }}/files/colosseum-infrastracture"
+    project_path: "{{ role_path }}/files/colosseum-infrastructure"
     force_init: true
     state: present
     complex_vars: true
