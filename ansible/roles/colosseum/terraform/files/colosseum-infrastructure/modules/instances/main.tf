@@ -71,7 +71,7 @@ resource "incus_instance" "wireguard_server" {
     properties = {
       "name" = "eth0"
       "network" = "colosseum-network"
-      "ipv4.address" = "10.80.${count.index}.254"
+      "ipv4.address" = "10.80.${count.index}.1"
     }
   }
 }
