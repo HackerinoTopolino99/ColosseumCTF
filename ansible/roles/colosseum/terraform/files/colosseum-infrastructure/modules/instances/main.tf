@@ -16,15 +16,6 @@ resource "incus_instance" "gameserver" {
       "ipv4.address" = "10.10.0.1"
     }
   }
-
-  device {
-    name = "http-proxy"
-    type = "proxy"
-    properties = {
-      listen = "tcp:0.0.0.0:80"
-      connect = "tcp:10.10.0.1:80"
-    }
-  }
 }
 
 resource "incus_instance" "vulnbox" {

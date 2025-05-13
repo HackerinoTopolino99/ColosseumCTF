@@ -14,28 +14,50 @@ resource "incus_network_forward" "colosseum-forward" {
   network = "incusbr0"
   listen_address = var.cluster_address
 
-  ports = [
-    for i in range(length(var.teams)) : {
-      description = "ciao2"
-      protocol = "udp"
-      listen_port = "${51820+i}"
-      target_address = "172.16.252.3"
-      target_port = "${51820+i}"
-    }
-  ]
+  ports = concat(
+    [
+      for i in range(length(var.teams)) : {
+        description = "ciao2"
+        protocol = "udp"
+        listen_port = "${51820+i}"
+        target_address = "172.16.252.3"
+        target_port = "${51820+i}"
+      }
+    ],
+    [
+      {
+        description = "Gameserver forward"
+        protcol = "tcp"
+        listen_port = "80"
+        target_address = "172.16.252.3"
+        target_port = "80"
+      }
+    ]
+  )
 }
 
 resource "incus_network_forward" "wireguard-forward" {
   network = incus_network.colosseum-network.name
   listen_address = "172.16.252.3"
 
-  ports = [
-    for i in range(length(var.teams)) : {
-      description = "ciao"
-      protocol = "udp"
-      listen_port = "${51820+i}"
-      target_address = "10.80.${i}.1"
-      target_port = "51820"
-    }
-  ]
+  ports = concat(
+    [
+      for i in range(length(var.teams)) : {
+        description = "ciao"
+        protocol = "udp"
+        listen_port = "${51820+i}"
+        target_address = "10.80.${i}.1"
+        target_port = "51820"
+      }
+    ],
+    [
+      {
+        description = "Gameserver forward"
+        protcol = "tcp"
+        listen_port = "80"
+        target_address = "10.10.0.1"
+        target_port = "80"
+      }
+    ]
+  )
 }
