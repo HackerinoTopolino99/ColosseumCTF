@@ -10,18 +10,31 @@ resource "incus_network" "colosseum-network" {
   }
 }
 
-resource "incus_network_forward" "wireguard-forward" {
-  count = length(var.teams)
-
-  network = incus_network.colosseum-network.name
+resource "incus_network_forward" "colosseum-forward" {
+  network = "incusbr0"
   listen_address = var.cluster_address
 
   ports = [
-    {
-      description = "Wireguard"
+    for i in range(length(var.teams)) : {
+      description = "ciao2"
       protocol = "udp"
-      listen_port = "${51820+count.index}"
-      target_address = "10.80.${count.index}.254"
+      listen_port = "${51820+i}"
+      target_address = "172.16.252.3"
+      target_port = "${51820+i}"
+    }
+  ]
+}
+
+resource "incus_network_forward" "wireguard-forward" {
+  network = incus_network.colosseum-network.name
+  listen_address = "172.16.252.3"
+
+  ports = [
+    for i in range(length(var.teams)) : {
+      description = "ciao"
+      protocol = "udp"
+      listen_port = "${51820+i}"
+      target_address = "10.80.${i}.1"
       target_port = "51820"
     }
   ]
