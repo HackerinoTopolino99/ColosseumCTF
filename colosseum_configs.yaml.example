@@ -3,10 +3,6 @@ colosseum:
     - team1
     - team2
     - team3
-  networks:
-    gameserver-network: "CIDR"
-    vulnboxes-network: "CIDR"
-    vpn-servers-networks: "CIDR"
   instances_type: "container"
   player_number: 6
   public_ip: "0.0.0.0"

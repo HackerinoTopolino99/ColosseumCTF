@@ -90,10 +90,6 @@ def parse_colosseum_configurations():
             if not valid_ipv4_address(configurations["cluster"]["nodes"][_]):
                 raise ValueError(f"Error: The value of {configurations["cluster"]["nodes"][_]} must be a valid IPv4 address")
 
-        for _ in configurations["colosseum"]["networks"]:
-            if not valid_ipv4_network(configurations["colosseum"]["networks"][_]):
-                raise ValueError(f"Error: The value of {configurations["colosseum"]["networks"][_]} must be a valid IPv4 network")
-
         if not isinstance(configurations["colosseum"]["player_number"], int) or configurations["colosseum"]["player_number"] < 2:
             raise ValueError("The value of 'player_number' must be an integer greater then 1")
 
@@ -167,11 +163,11 @@ def deploy_colosseum(settings: dict) -> None:
             }
         },
         "all": {
-            "settings": {
+            "vars": {
+                "cluster_address": settings["public_ip"],
                 "ansible_connection": "community.general.incus",
                 "ansible_incus_remote": settings["remote"],
                 "instances_type": settings["instances_type"],
-                "networks": settings["networks"],
                 "remote": settings["remote"],
                 "teams": settings["teams"],
             }
@@ -179,6 +175,15 @@ def deploy_colosseum(settings: dict) -> None:
     }
 
     print(yaml.dump(inventory))
+
+    runner = ansible_runner.run(
+            private_data_dir="./ansible",
+            playbook="deploy_colosseum.yaml",
+            inventory=yaml.dump(inventory)
+            )
+
+    if runner.rc != 0:
+        raise RuntimeError(f"The playbook setup_incus.yaml failed with error {runner.rc}")
 
 
 if __name__ == '__main__':
@@ -194,5 +199,5 @@ if __name__ == '__main__':
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
-    # deploy_colosseum(colosseum_configs)
+    # build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
+    deploy_colosseum(colosseum_configs)

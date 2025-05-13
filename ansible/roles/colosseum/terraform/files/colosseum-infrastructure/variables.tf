@@ -13,11 +13,6 @@ variable "instances_type" {
   }
 }
 
-variable "networks" {
-  description = "List of networks"
-  type = map(string)
-}
-
 variable "remote" {
   description = "Remote del progetto"
   type = string

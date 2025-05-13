@@ -1,8 +1,3 @@
-variable "networks" {
-  description = "List of networks"
-  type = map(string)
-}
-
 variable "network_type" {
   type = string
   default = "ovn"
