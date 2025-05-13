@@ -74,13 +74,4 @@ resource "incus_instance" "vpn" {
       "ipv4.address" = "10.80.${count.index}.254"
     }
   }
-
-  device {
-    name = "wireguard-proxy"
-    type = "proxy"
-    properties = {
-      listen = "udp:0.0.0.0:${51820+count.index}"
-      connect = "udp:10.80.${count.index}.254:51820"
-    }
-  }
 }
