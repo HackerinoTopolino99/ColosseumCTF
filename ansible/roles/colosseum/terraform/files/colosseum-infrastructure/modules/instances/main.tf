@@ -53,10 +53,10 @@ resource "incus_instance" "vulnbox" {
   }
 }
 
-resource "incus_instance" "vpn" {
+resource "incus_instance" "wireguard_server" {
   count = length(var.teams)
 
-  name  = "${var.teams[count.index]}-vpn"
+  name  = "${var.teams[count.index]}-wireguard-server"
   image = "wireguard"
   profiles = ["default"]
   type = var.instance_type
