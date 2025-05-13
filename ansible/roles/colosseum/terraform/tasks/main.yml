@@ -13,22 +13,3 @@
   delegate_to: localhost
   connection: local
 
-- block: 
-  - name: Create network peer between gameserver-network and vulnboxes-network
-    shell:
-      cmd: "incus network peer create gameserver-network peer1 vulnboxes-network"
-  
-  - name: Create network peer between vulnboxes-network and gameserver-network
-    shell:
-      cmd: "incus network peer create vulnboxes-network peer1 gameserver-network"
-  
-  - name: Create network peer between vulnboxes-network and vpn-servers-network
-    shell:
-      cmd: "incus network peer create vulnboxes-network peer2 vpn-servers-network"
-  
-  - name: Create network peer between vpn-servers-network and vulnboxes-network
-    shell:
-      cmd: "incus network peer create vpn-servers-network peer2 vulnboxes-network"
-  
-  run_once: true
-  become: yes
