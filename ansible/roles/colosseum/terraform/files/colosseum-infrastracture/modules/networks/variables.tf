@@ -8,6 +8,14 @@ variable "network_type" {
   default = "ovn"
 }
 
-locals {
-  network_type = var.project_name != "default" ? "ovn" : var.network_type
+variable "cluster_address" {
+  type = string
 }
+
+variable "teams" {
+  type = list(string)
+}
+
+#locals {
+#  network_type = var.project_name != "default" ? "ovn" : var.network_type
+#}

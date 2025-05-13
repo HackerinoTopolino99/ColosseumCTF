@@ -13,16 +13,15 @@ provider "incus" {
 module "networks" {
   source = "./modules/networks"
 
-  project_name = var.project_name
-
+  cluster_address = var.cluster_address
+  teams = concat(["nop"], var.teams)
   networks = var.networks
 }
 
 module "instances" {  
   source = "./modules/instances"
   depends_on = [module.networks]
-
-  project_name = var.project_name
+  
   instance_type = var.instances_type
   teams = concat(["nop"], var.teams)
 }

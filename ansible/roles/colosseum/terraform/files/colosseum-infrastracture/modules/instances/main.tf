@@ -2,7 +2,6 @@ resource "incus_instance" "gameserver" {
   name  = "gameserver"
   image = "gameserver"
   profiles = ["default"]
-  project = var.project_name
   type = var.instance_type
 
   config = {
@@ -34,7 +33,6 @@ resource "incus_instance" "vulnbox" {
   name  = "${var.teams[count.index]}-vulnbox"
   image = "vulnbox"
   profiles = ["default"]
-  project = var.project_name
   type = var.instance_type
 
   config = {
@@ -61,7 +59,6 @@ resource "incus_instance" "vpn" {
   name  = "${var.teams[count.index]}-vpn"
   image = "wireguard"
   profiles = ["default"]
-  project = var.project_name
   type = var.instance_type
 
   config = {
