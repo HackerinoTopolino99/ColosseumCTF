@@ -1,38 +1,15 @@
-- name: Install ovn-host
+- name: Install openswitch
   package:
     name:
-      - "ovn-host"
+      - "openswitch-switch"
     state: latest
     update_cache: yes
   become: yes
 
 - block:
-  - name: Install ovn-central on the first 3 nodes
-    package:
-      name:
-        - "ovn-central"
-      state: latest
-      update_cache: yes
-    when: inventory_hostname == server_1 or inventory_hostname == server_2 or inventory_hostname == server_3
-    become: yes
-
   - name: Set local as current host
     set_fact:
       local: "{{ inventory_hostname }}"
-
-  - name: Set up bootstrap server
-    template:
-      src: templates/bootstrap-ovn-central.conf.j2
-      dest: /etc/default/ovn-central
-    when: inventory_hostname == server_1
-    become: yes
-
-  - name: Set up server 2 and 3
-    template:
-      src: templates/ovn-central.conf.j2
-      dest: /etc/default/ovn-central
-    when: inventory_hostname == server_2 or inventory_hostname == server_3
-    become: yes
 
   - name: Restart ovn-central
     systemd_service:
@@ -52,8 +29,7 @@
   - name: Install ovn packages
     package:
       name:
-        - "ovn-central"
-        - "ovn-host"
+        - "openswitch-switch"
       state: latest
     become: yes
 
