@@ -10,6 +10,7 @@ colosseum:
 
 cluster:
   ansible_user: "user"
+  ansible_password: "password"
   nodes:
     node1: "ip_node1"
     node2: "ip_node2"
