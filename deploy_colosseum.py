@@ -207,5 +207,5 @@ if __name__ == '__main__':
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-#    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
-#    deploy_colosseum(colosseum_configs)
+    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
+    deploy_colosseum(colosseum_configs)
