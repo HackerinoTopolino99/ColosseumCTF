@@ -18,7 +18,7 @@ build {
     inline  = [
       "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq",
       "mkdir /etc/wireguard",
-      "rc-updated iptables",
+      "rc-update iptables",
     ]
   }
 }
