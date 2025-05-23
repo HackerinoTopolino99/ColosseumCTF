@@ -9,8 +9,8 @@
   roles:
     - { role: colosseum/vulnboxes }
  
-- hosts: wireguard_servers
-  gather_facts: false
-  roles:
-    - { role: colosseum/wireguard_servers }
+#- hosts: router
+#  gather_facts: false
+#  roles:
+#    - { role: colosseum/wireguard_servers }
 
