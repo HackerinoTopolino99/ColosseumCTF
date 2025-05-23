@@ -97,40 +97,50 @@ def parse_colosseum_configurations():
 
 
 def setup_incus(settings: dict) -> None:
-    cluster_nodes = []
-    nodes_name = "\n"
+    cluster_nodes = {}
+    nodes_name = {}
 
     for n in settings["nodes"].keys():
-        cluster_nodes.append(settings['nodes'][n])
-        nodes_name += f"      {settings['nodes'][n]}: {n}\n"
+        cluster_nodes[settings['nodes'][n]] = None
+        nodes_name[settings['nodes'][n]] = n
 
     if len(settings["nodes"]) == 1:
-        inventory = f"""cluster_nodes:
-  hosts: {'      :\n'.join(cluster_nodes)}      :
-  vars:
-    server_1: {cluster_nodes[0]}
-    cluster_address: {cluster_nodes[0]}
-    remote: {settings["remote"]}
-    ansible_connection: ssh
-    ansible_user: {settings["ansible_user"]}
-    ansible_python_interpreter: python3
-"""
+        inventory = {
+            "cluster_nodes": {
+                "hosts": cluster_nodes,
+                "vars": {
+                    "server_1": list(cluster_nodes.keys())[0],
+                    "cluster_address": list(cluster_nodes.keys())[0],
+                    "remote": settings["remote"],
+                    "ansible_connection": "ssh",
+                    "ansible_user": settings["ansible_user"],
+                    "ansible_passowrd": settings["ansible_password"],
+                    "ansible_become_pass": settings["ansible_password"],
+                    "ansible_python_interpreter": "python3"
+                }
+            }
+        }
 
+        print(yaml.dump(inventory))
     else:
-        inventory = f"""cluster_nodes:
-  hosts:
-    {':\n    '.join(cluster_nodes)}:
-  vars:
-    cluster_address: {cluster_nodes[0]}
-    nodes_names: {nodes_name}
-    server_1: {cluster_nodes[0]}
-    server_2: {cluster_nodes[1]}
-    server_3: {cluster_nodes[2]}
-    remote: {settings["remote"]}
-    ansible_connection: ssh
-    ansible_user: {settings["ansible_user"]}
-    ansible_python_interpreter: python3
-"""
+        inventory = {
+            "cluster_nodes": {
+                "hosts": cluster_nodes,
+                "vars": {
+                    "cluster_address": list(cluster_nodes.keys())[0],
+                    "nodes_names": nodes_name,
+                    "server_1": list(cluster_nodes.keys())[0],
+                    "server_2": list(cluster_nodes.keys())[1],
+                    "server_3": list(cluster_nodes.keys())[2],
+                    "remote": settings["remote"],
+                    "ansible_connection": "ssh",
+                    "ansible_user": settings["ansible_user"],
+                    "ansible_passowrd": settings["ansible_password"],
+                    "ansible_become_pass": settings["ansible_password"],
+                    "ansible_python_interpreter": "python3"
+                }
+            }
+        }
 
     runner = ansible_runner.run(
             private_data_dir="./ansible",
@@ -197,5 +207,5 @@ if __name__ == '__main__':
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
-    deploy_colosseum(colosseum_configs)
+#    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
+#    deploy_colosseum(colosseum_configs)
