@@ -22,7 +22,8 @@ build {
 
   provisioner "shell" {
     inline  = [
-      "apt-get install -y apt-utils",
+      "apt-get update -y",
+      "apt-get upgrade -y",
       "apt-get install -y sudo python-is-python3 python3 cron vim tcpdump tmux bash-completion openssh-server nano file util-linux openssh-sftp-server htop ncdu",
       "sed -i 's/^Name=eth0/Name=game0/' /etc/systemd/network/eth0.network",
       "rename.ul eth0 game0 /etc/systemd/network/eth0.network",
