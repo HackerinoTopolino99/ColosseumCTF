@@ -9,12 +9,20 @@ resource "incus_instance" "gameserver" {
   }
 
   device {
+    name = "eth0"
+    type = "nic"
+    
+    properties = {
+      network = "incusbr0"
+    }
+  }
+
+  device {
     name = "game"
     type = "nic"
     properties = {
       "name" = "game"
       "network" = "colosseum-network"
-      "ipv4.address" = "10.10.0.1"
     }
   }
 }
@@ -35,12 +43,19 @@ resource "incus_instance" "vulnbox" {
   }
 
   device {
+    name = "eth0"
+    type = "nic"
+    properties = {
+      network = "incusbr0"
+    }
+ }
+
+  device {
     name = "game"
     type = "nic"
     properties = {
-      "name" = "game"
-      "network" = "colosseum-network"
-      "ipv4.address" = "10.60.${count.index}.1"
+      name = "game"
+      network = "colosseum-network"
     }
   }
 }
@@ -56,13 +71,20 @@ resource "incus_instance" "router" {
   }
 
   device {
-    name = "game"
+    name = "eth0"
     type = "nic"
     properties = {
-      "name" = "game"
-      "network" = "colosseum-network"
-      "ipv4.address" = "10.254.0.1"
+      network = "incusbr0"
+      "ipv4.address" = "172.16.0.2"
     }
   }
 
-}
+  device {
+    name = "game"
+    type = "nic"
+    properties = {
+      name = "game"
+      network = "colosseum-network"
+    }
+  }
+} 
