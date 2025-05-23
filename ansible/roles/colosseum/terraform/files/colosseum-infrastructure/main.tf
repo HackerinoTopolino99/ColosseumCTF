@@ -14,7 +14,6 @@ module "networks" {
   source = "./modules/networks"
 
   cluster_address = var.cluster_address
-  teams = concat(["nop"], var.teams)
 }
 
 module "instances" {  

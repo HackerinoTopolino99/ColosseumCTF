@@ -9,9 +9,10 @@ resource "incus_instance" "gameserver" {
   }
 
   device {
-    name = "eth0"
+    name = "game"
     type = "nic"
     properties = {
+      "name" = "game"
       "network" = "colosseum-network"
       "ipv4.address" = "10.10.0.1"
     }
@@ -34,21 +35,19 @@ resource "incus_instance" "vulnbox" {
   }
 
   device {
-    name = "game0"
+    name = "game"
     type = "nic"
     properties = {
-      "name" = "game0"
+      "name" = "game"
       "network" = "colosseum-network"
       "ipv4.address" = "10.60.${count.index}.1"
     }
   }
 }
 
-resource "incus_instance" "wireguard_server" {
-  count = length(var.teams)
-
-  name  = "${var.teams[count.index]}-wireguard-server"
-  image = "wireguard"
+resource "incus_instance" "router" {
+  name  = "router"
+  image = "router"
   profiles = ["default"]
   type = var.instance_type
 
@@ -57,12 +56,13 @@ resource "incus_instance" "wireguard_server" {
   }
 
   device {
-    name = "eth0"
+    name = "game"
     type = "nic"
     properties = {
-      "name" = "eth0"
+      "name" = "game"
       "network" = "colosseum-network"
-      "ipv4.address" = "10.80.${count.index}.1"
+      "ipv4.address" = "10.254.0.1"
     }
   }
+
 }
