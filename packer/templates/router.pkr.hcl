@@ -1,7 +1,7 @@
-source "incus" "wireguard" {
+source "incus" "router" {
   image = "images:alpine/3.20"
-  output_image = "wireguard"
-  container_name = "${var.remote}:wireguard"
+  output_image = "router"
+  container_name = "${var.remote}:router"
   reuse = true
   publish_remote_name = var.remote
   virtual_machine = var.virtual_machine
@@ -12,12 +12,13 @@ source "incus" "wireguard" {
 }
 
 build {
-  sources = ["source.incus.wireguard"]
+  sources = ["source.incus.router"]
 
   provisioner "shell" {
     inline  = [
-      "apk add iptables wireguard-tools-wg-quick python3 bash-completion",
-      "mkdir /etc/wireguard"
+      "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq",
+      "mkdir /etc/wireguard",
+      "rc-updated iptables",
     ]
   }
 }
