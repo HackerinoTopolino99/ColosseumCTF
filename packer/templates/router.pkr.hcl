@@ -16,9 +16,11 @@ build {
 
   provisioner "shell" {
     inline  = [
+      "apk update",
+      "apk upgrade",
       "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq",
       "mkdir /etc/wireguard",
-      "rc-update iptables",
+      "rc-update add iptables",
     ]
   }
 }
