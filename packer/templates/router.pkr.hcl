@@ -18,9 +18,13 @@ build {
     inline  = [
       "apk update",
       "apk upgrade",
-      "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq",
+      "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq vim",
       "mkdir /etc/wireguard",
       "rc-update add iptables",
     ]
+  }
+  provisioner "file" {
+    source = "${abspath("path.root")}/../files/interfaces"
+    destination = "/etc/network/interfaces"
   }
 }
