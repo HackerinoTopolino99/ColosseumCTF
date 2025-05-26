@@ -1,7 +1,7 @@
 source "incus" "vulnbox" {
   image = "images:debian/12"
   output_image = "vulnbox"
-  container_name = "${var.remote}:vulnbox"
+  container_name = "${var.remote}:vulnbox-image-build"
   reuse = true
   publish_remote_name = var.remote
   virtual_machine = var.virtual_machine

@@ -1,7 +1,7 @@
 source "incus" "router" {
   image = "images:alpine/3.20"
   output_image = "router"
-  container_name = "${var.remote}:router"
+  container_name = "${var.remote}:router-image-build"
   reuse = true
   publish_remote_name = var.remote
   virtual_machine = var.virtual_machine
