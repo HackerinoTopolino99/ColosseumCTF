@@ -1,6 +1,6 @@
-source "incus" "vulnbox" {
+source "incus" "vulnbox-image" {
   image = "images:debian/12"
-  output_image = "vulnbox"
+  output_image = "vulnbox-image"
   container_name = "${var.remote}:vulnbox-image-build"
   reuse = true
   publish_remote_name = var.remote
@@ -18,7 +18,7 @@ source "incus" "vulnbox" {
 }
 
 build {
-  sources = ["source.incus.vulnbox"]
+  sources = ["source.incus.vulnbox-image"]
 
   provisioner "shell" {
     inline  = [
