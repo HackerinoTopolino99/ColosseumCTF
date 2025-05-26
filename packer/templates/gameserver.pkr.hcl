@@ -1,6 +1,6 @@
-source "incus" "gameserver" {
+source "incus" "gameserver-image" {
   image = "images:debian/12"
-  output_image = "gameserver"
+  output_image = "gameserver-image"
   container_name = "${var.remote}:gameserver-image-build"
   reuse = true
   publish_remote_name = var.remote
@@ -12,7 +12,7 @@ source "incus" "gameserver" {
 }
 
 build {
-  sources = ["source.incus.gameserver"]
+  sources = ["source.incus.gameserver-image"]
 
   provisioner "shell" {
     inline  = [
