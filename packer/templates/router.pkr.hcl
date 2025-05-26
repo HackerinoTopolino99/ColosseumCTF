@@ -24,7 +24,12 @@ build {
     ]
   }
   provisioner "file" {
-    source = "${abspath("path.root")}/../files/interfaces"
+    source = "${abspath("path.root")}/../files/router/interfaces"
     destination = "/etc/network/interfaces"
+  }
+
+  provisioner "file" {
+    source = "${abspath("path.root")}/../files/router/dnsmasq.conf"
+    destination = "/etc/dnsmasq.conf"
   }
 }
