@@ -37,7 +37,6 @@ def valid_ipv4_network(network: str) -> bool:
 
 
 def execute(cmd: list) -> None:
-    # Source: https://stackoverflow.com/questions/4417546/constantly-print-subprocess-output-while-process-is-running
     print(f"[i] Executing the following command: {' '.join(cmd)}")
 
     try:
@@ -121,7 +120,6 @@ def setup_incus(settings: dict) -> None:
             }
         }
 
-        print(yaml.dump(inventory))
     else:
         inventory = {
             "cluster_nodes": {
@@ -152,7 +150,7 @@ def setup_incus(settings: dict) -> None:
         raise RuntimeError(f"The playbook setup_incus.yaml failed with error {runner.rc}")
 
 
-def deploy_colosseum(settings: dict) -> None:
+def deploy_colosseum(settings: dict, nodes_name: list) -> None:
     vulnboxes = {}
     wireguard_servers = {}
 
@@ -174,6 +172,7 @@ def deploy_colosseum(settings: dict) -> None:
         },
         "all": {
             "vars": {
+                "nodes": nodes_name,
                 "cluster_address": settings["public_ip"],
                 "ansible_connection": "community.general.incus",
                 "ansible_incus_remote": settings["remote"],
@@ -208,4 +207,4 @@ if __name__ == '__main__':
         setup_incus(cluster_configurations)
 
     build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
-    deploy_colosseum(colosseum_configs)
+    deploy_colosseum(colosseum_configs, list(cluster_configurations["nodes"].keys()))

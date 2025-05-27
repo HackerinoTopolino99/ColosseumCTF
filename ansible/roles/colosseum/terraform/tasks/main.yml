@@ -9,6 +9,7 @@
       instances_type: "{{ instances_type }}"
       remote: "{{ remote }}"
       teams: "{{ teams }}"
+      nodes: "{{ nodes }}"
   run_once: true
   delegate_to: localhost
   connection: local
