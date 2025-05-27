@@ -10,15 +10,27 @@ provider "incus" {
   }
 }
 
+module "storage" {
+  source = "./modules/storage"
+
+  nodes = var.nodes
+}
+
 module "networks" {
   source = "./modules/networks"
 
   cluster_address = var.cluster_address
+  nodes = var.nodes
+}
+
+module "profile" {
+  source = "./modules/profile"
+  depends_on = [module.storage, module.networks]
 }
 
 module "instances" {  
   source = "./modules/instances"
-  depends_on = [module.networks]
+  depends_on = [module.profile]
   
   instance_type = var.instances_type
   teams = concat(["nop"], var.teams)

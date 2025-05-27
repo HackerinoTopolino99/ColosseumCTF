@@ -23,3 +23,7 @@ variable "teams" {
   type = list(string)
 }
 
+variable "nodes" {
+  description = "List of nodes of a cluster"
+  type = list(string)
+}
