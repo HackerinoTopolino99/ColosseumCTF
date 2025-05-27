@@ -40,7 +40,7 @@ resource "incus_instance" "router" {
     type = "nic"
     properties = {
       network = "colosseum-wan"
-      "ipv4.address" = "192.168.45.2"
+      "ipv4.address" = "192.168.44.2"
     }
   }
 } 

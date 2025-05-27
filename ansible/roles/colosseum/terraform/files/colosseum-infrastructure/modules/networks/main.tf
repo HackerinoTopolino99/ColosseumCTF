@@ -18,10 +18,11 @@ resource "incus_network" "colosseum_wan" {
   type = "bridge"
 
   config = {
-    "ipv4.address" = "192.168.45.1/23"
+    "ipv4.address" = "192.168.44.1/23"
     "ipv4.nat" = "true"
     "ipv4.dhcp" = "true"
     "ipv6.address" = "none"
+    "raw.dnsmasq" = "dhcp-range=dhcp-option=1,255.255.255.255"
   }
 }
 
@@ -38,10 +39,11 @@ resource "incus_network" "colosseum_wan_cluster" {
   type = "bridge"
 
   config = {
-    "ipv4.address" = "192.168.45.1/23"
+    "ipv4.address" = "192.168.44.1/23"
     "ipv4.nat" = "true"
     "ipv4.dhcp" = "true"
     "ipv6.address" = "none"
+    "raw.dnsmasq" = "dhcp-range=dhcp-option=1,255.255.255.255"
   }
   depends_on = [incus_network.colosseum_wan_node]
 }
@@ -56,7 +58,7 @@ resource "incus_network_forward" "colosseum-vpn-forward" {
         description = "Wireguard Forward"
         protocol = "udp"
         listen_port = "51820"
-        target_address = "192.168.45.2"
+        target_address = "192.168.44.2"
         target_port = "51820"
       }
     ],
