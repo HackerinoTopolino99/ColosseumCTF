@@ -1,29 +1,11 @@
 resource "incus_instance" "gameserver" {
   name  = "gameserver"
-  image = "gameserver"
-  profiles = ["default"]
+  image = "gameserver-image"
+  profiles = ["colosseum-profile"]
   type = var.instance_type
 
   config = {
     "boot.autostart" = true
-  }
-
-  device {
-    name = "eth0"
-    type = "nic"
-    
-    properties = {
-      network = "incusbr0"
-    }
-  }
-
-  device {
-    name = "game"
-    type = "nic"
-    properties = {
-      "name" = "game"
-      "network" = "colosseum-network"
-    }
   }
 }
 
@@ -31,8 +13,8 @@ resource "incus_instance" "vulnbox" {
   count = length(var.teams)
 
   name  = "${var.teams[count.index]}-vulnbox"
-  image = "vulnbox"
-  profiles = ["default"]
+  image = "vulnbox-image"
+  profiles = ["colosseum-profile"]
   type = var.instance_type
 
   config = {
@@ -41,29 +23,12 @@ resource "incus_instance" "vulnbox" {
     "security.syscalls.intercept.mknod" = true
     "security.syscalls.intercept.setxattr" = true
   }
-
-  device {
-    name = "eth0"
-    type = "nic"
-    properties = {
-      network = "incusbr0"
-    }
- }
-
-  device {
-    name = "game"
-    type = "nic"
-    properties = {
-      name = "game"
-      network = "colosseum-network"
-    }
-  }
 }
 
 resource "incus_instance" "router" {
   name  = "router"
-  image = "router"
-  profiles = ["default"]
+  image = "router-image"
+  profiles = ["colosseum-profile"]
   type = var.instance_type
 
   config = {
@@ -74,17 +39,8 @@ resource "incus_instance" "router" {
     name = "eth0"
     type = "nic"
     properties = {
-      network = "incusbr0"
-      "ipv4.address" = "172.16.0.2"
-    }
-  }
-
-  device {
-    name = "game"
-    type = "nic"
-    properties = {
-      name = "game"
-      network = "colosseum-network"
+      network = "colosseum-wan"
+      "ipv4.address" = "192.168.45.2"
     }
   }
 } 
