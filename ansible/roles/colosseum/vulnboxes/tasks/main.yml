@@ -1,7 +1,15 @@
-#- name: Copy host ssh-key
-#  authorized_key:
-#    user: root
-#    key: "{{ lookup('file', '/home/' + lookup('env', 'USER') + '/.ssh/id_rsa.pub') }}"
+- name: Generate ssh key for admins
+  openssh_keypair:
+    path: "out/colosseum_id_ed25519"
+    type: ed25519
+    force: true
+  run_once: true
+  delegate_to: localhost
+
+- name: Copy host ssh key on the vulnbox
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', 'out/colosseum_id_ed25519.pub') }}"
 
 - name: Create random password
   ansible.builtin.set_fact:
