@@ -22,5 +22,5 @@
   local_action:
     module: copy
     content: "{{ root_password }}\n"
-    dest: "/out/vm_passwords/{{ inventory_hostname }}.txt"
-    
+    dest: "out/vm_passwords/{{ inventory_hostname }}.txt"
+
