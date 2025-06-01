@@ -12,8 +12,8 @@ resource "incus_instance" "gameserver" {
     name = "game"
     type = "nic"
     properties = {
-      network = colosseum-network
-      hwadrr = "02:12:99:00:00:00"
+      network = "colosseum-network"
+      hwaddr = "02:12:99:00:00:00"
     }
   }
 
@@ -46,8 +46,8 @@ resource "incus_instance" "vulnbox" {
     name = "game"
     type = "nic"
     properties = {
-      network = colosseum-network
-      hwadrr = "12:15:99:00:00:${format("%x", count.index)}"
+      network = "colosseum-network"
+      hwaddr = format("12:15:99:00:00:%02x", count.index)
     }
   }
 
