@@ -1,20 +1,3 @@
-- name: "Delete existing output folder"
-  local_action:
-    module: file
-    state: absent
-    path: "{{ vpn_client_files_output_directory }}/{{ inventory_hostname }}/"
-
-- name: "Create output folder"
-  local_action:
-    module: file
-    path: "{{ vpn_client_files_output_directory }}/{{ inventory_hostname }}"
-    state: directory
-    recurse: yes
-
-- name: "Set vpn server address"
-  set_fact:
-    server_address: "{{ ansible_default_ipv4.address[:-3] }}1"
-
 - name: Generate server private key
   shell: wg genkey
   register: server_private_key
@@ -31,11 +14,28 @@
 
 - name: "Set endpoint"
   set_fact:
-    endpoint: "{{ vpn_endpoint_address }}:{{ 51820 + ansible_play_hosts_all.index(inventory_hostname) }}"
+    endpoint: "{{ vpn_endpoint_address }}:51820"
+
+- name: "Delete existing output folder"
+  local_action:
+    module: file
+    path: "out/vpns/{{ item }}"
+    state: absent
+  loop: "{{ teams }}"
+
+- name: "Create output folder"
+  local_action:
+    module: file
+    path: "out/vpns/{{ item }}"
+    state: directory
+    recurse: yes
+  loop: "{{ teams }}"
 
 - name: Clients configuration
   include_tasks: wireguard-client-tasks.yml
-  loop: "{{ range(2, vpn_players + 2) | list }}"
+  loop: "{{ teams | product(range(1, vpn_players + 1)) | list }}"
+  loop_control:
+    loop_var: player
 
 - name: "Add server configuration to network"
   blockinfile:

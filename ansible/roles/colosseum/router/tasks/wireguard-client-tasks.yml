@@ -8,22 +8,20 @@
 
 - name: Set client Address
   set_fact:
-    client_address: "{{ ansible_default_ipv4.address[:-3] }}{{ item }}"
+    client_address: "10.80.{{ teams.index(player.0) + 1 }}.{{ player.1 }}"
 
 - name: "Generate client configuration"
   local_action:
     module: template
     src: wg0_client.conf.j2
     mode: 0600
-    dest: "/out/vpn_conf/{{ inventory_hostname }}/player{{ item }}.conf"
+    dest: "out/vpns/{{ player.0 }}/player{{ player.1 }}.conf"
     force: true
 
-- name: "Add peer to the server"
-  blockinfile:
+- name: "Adding Peer to the wireguard server"
+  lineinfile:
     path: /etc/wireguard/wg0.conf
-    append_newline: true
-    block: |
-      [Peer]
-      PublicKey = {{ client_public_key.stdout }}
-      AllowedIPs = {{ client_address }}/32"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item }}"
+    line: "[Peer]\nPublicKey = {{ client_public_key.stdout }}\nAllowedIPs = {{ client_address }}/32\n"
+    insertafter: EOF
+
+
