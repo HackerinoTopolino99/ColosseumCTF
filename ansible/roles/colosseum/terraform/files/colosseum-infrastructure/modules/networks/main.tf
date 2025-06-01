@@ -21,8 +21,9 @@ resource "incus_network" "colosseum_wan" {
     "ipv4.address" = "192.168.44.1/23"
     "ipv4.nat" = "true"
     "ipv4.dhcp" = "true"
+    "ipv4.dhcp.ranges" = "192.168.44.1-192.168.44.1"
     "ipv6.address" = "none"
-    "raw.dnsmasq" = "dhcp-range=dhcp-option=1,255.255.255.255"
+    "raw.dnsmasq" = "dhcp-option=1,255.255.255.255"
   }
 }
 
@@ -42,8 +43,9 @@ resource "incus_network" "colosseum_wan_cluster" {
     "ipv4.address" = "192.168.44.1/23"
     "ipv4.nat" = "true"
     "ipv4.dhcp" = "true"
+    "ipv4.dhcp.ranges" = "192.168.44.1-192.168.44.1"
     "ipv6.address" = "none"
-    "raw.dnsmasq" = "dhcp-range=dhcp-option=1,255.255.255.255"
+    "raw.dnsmasq" = "dhcp-option=1,255.255.255.255"
   }
   depends_on = [incus_network.colosseum_wan_node]
 }
