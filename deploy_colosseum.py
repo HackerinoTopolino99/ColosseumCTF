@@ -163,10 +163,10 @@ def deploy_colosseum(settings: dict, nodes_name: list) -> None:
             "hosts": vulnboxes,
         },
 
-        "wireguard_servers": {
-            "hosts": wireguard_servers,
+        "router": {
+            "hosts": "router",
             "vars": {
-                "endpoint_address": settings["public_ip"],
+                "vpn_endpoint_address": settings["public_ip"],
                 "vpn_players": settings["player_number"],
             }
         },
@@ -206,5 +206,5 @@ if __name__ == '__main__':
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
+#    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
     deploy_colosseum(colosseum_configs, list(cluster_configurations["nodes"].keys()))
