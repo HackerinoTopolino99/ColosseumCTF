@@ -46,3 +46,28 @@
       iface wg0 inet static
       pre-up wg-quick up /etc/wireguard/wg0.conf
   notify: Restart networking service
+
+- name: "Add Gameserver static lease to dnsmasq"
+  lineinfile:
+    path: /etc/dnsmasq.conf
+    line: "\ndhcp-host=02:12:99:00:00:00,10.10.0.1"
+    insertafter: EOF
+
+- name: "Add Nop team vulnbox static lease to dnsmasq"
+  lineinfile:
+    path: /etc/dnsmasq.conf
+    line: "dhcp-host=12:15:99:00:00:00,10.60.0.1"
+    insertafter: EOF
+
+- name: "Add Vulnboxes static lease to dnsmasq"
+  lineinfile:
+    path: /etc/dnsmasq.conf
+    line: "dhcp-host=12:15:99:00:00:{{ '%02x' | format(teams.index(item) + 1) }},10.60.{{ teams.index(item) + 1 }}.1"
+    insertafter: EOF
+  loop: "{{ teams }}"
+
+- name: "Restart dnsmasq"
+  sysvinit:
+    name: dnsmasq
+    state: restarted
+
