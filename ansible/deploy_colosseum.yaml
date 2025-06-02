@@ -4,13 +4,18 @@
   roles:
     - { role: colosseum/terraform }
 
-- hosts: vulnboxes
-  gather_facts: false
-  roles:
-    - { role: colosseum/vulnboxes }
-
 - hosts: router
   gather_facts: false
   roles:
     - { role: colosseum/router }
+
+- hosts: vulnboxes
+  gather_facts: false
+  roles:
+    - { role: colosseum/vulnboxes }
+  tasks:
+    - name: "Get address from router"
+      systemd_service:
+        name: systemd-networkd
+        state: restarted
 
