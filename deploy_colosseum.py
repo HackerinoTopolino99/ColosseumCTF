@@ -152,11 +152,9 @@ def setup_incus(settings: dict) -> None:
 
 def deploy_colosseum(settings: dict, nodes_name: list) -> None:
     vulnboxes = {}
-    wireguard_servers = {}
 
     for t in settings["teams"]:
         vulnboxes[t + "-vulnbox"] = None
-        wireguard_servers[t + "-vpn"] = None
 
     inventory = {
         "vulnboxes": {
@@ -172,13 +170,14 @@ def deploy_colosseum(settings: dict, nodes_name: list) -> None:
         },
         "all": {
             "vars": {
-                "nodes": nodes_name,
                 "cluster_address": settings["public_ip"],
-                "ansible_connection": "community.general.incus",
-                "ansible_incus_remote": settings["remote"],
                 "instances_type": settings["instances_type"],
+                "nodes": nodes_name,
                 "remote": settings["remote"],
                 "teams": settings["teams"],
+                "ansible_connection": "community.general.incus",
+                "ansible_incus_remote": settings["remote"],
+                "ansible_python_interpreter": "python3"
             }
         }
     }
@@ -206,5 +205,5 @@ if __name__ == '__main__':
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-#    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
+    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
     deploy_colosseum(colosseum_configs, list(cluster_configurations["nodes"].keys()))
