@@ -1,12 +1,12 @@
 source "incus" "gameserver-image" {
-  image = "images:debian/12"
-  output_image = "gameserver-image"
-  container_name = "${var.remote}:gameserver-image-build"
-  reuse = true
+  image               = "images:debian/12"
+  output_image        = "gameserver-image"
+  container_name      = "${var.remote}:gameserver-image-build"
+  reuse               = true
   publish_remote_name = var.remote
-  virtual_machine = var.virtual_machine
+  virtual_machine     = var.virtual_machine
 
-  publish_properties =  {
+  publish_properties = {
     description = "Image for the gameserver"
   }
 }
@@ -15,7 +15,7 @@ build {
   sources = ["source.incus.gameserver-image"]
 
   provisioner "shell" {
-    inline  = [
+    inline = [
       "apt-get update -y",
       "apt-get upgrade -y",
       "apt-get install -y bash-completion python3 python-is-python3 sudo",

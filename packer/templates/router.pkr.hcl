@@ -1,13 +1,13 @@
 source "incus" "router-image" {
-  image = "images:alpine/3.20"
-  output_image = "router-image"
-  container_name = "${var.remote}:router-image-build"
-  reuse = true
+  image               = "images:alpine/3.20"
+  output_image        = "router-image"
+  container_name      = "${var.remote}:router-image-build"
+  reuse               = true
   publish_remote_name = var.remote
-  virtual_machine = var.virtual_machine
+  virtual_machine     = var.virtual_machine
 
-  publish_properties =  {
-    description = "Image for the VPNs servers that will give access to the players to the infrastructure" 
+  publish_properties = {
+    description = "Image for the VPNs servers that will give access to the players to the infrastructure"
   }
 }
 
@@ -15,7 +15,7 @@ build {
   sources = ["source.incus.router-image"]
 
   provisioner "shell" {
-    inline  = [
+    inline = [
       "apk update",
       "apk upgrade",
       "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq vim",
@@ -29,12 +29,12 @@ build {
     ]
   }
   provisioner "file" {
-    source = "${abspath(path.root)}/../files/router/interfaces"
+    source      = "${abspath(path.root)}/../files/router/interfaces"
     destination = "/etc/network/interfaces"
   }
 
   provisioner "file" {
-    source = "${abspath(path.root)}/../files/router/dnsmasq.conf"
+    source      = "${abspath(path.root)}/../files/router/dnsmasq.conf"
     destination = "/etc/dnsmasq.conf"
   }
 }

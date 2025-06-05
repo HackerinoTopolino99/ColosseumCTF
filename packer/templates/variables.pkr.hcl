@@ -1,11 +1,11 @@
 variable remote {
-  type = string
-  default = "local"
+  type        = string
   description = "Incus remote name"
+  default     = "local"
 }
 
 variable virtual_machine {
-  type = bool
-  default = false
+  type        = bool
   description = "Type of the image. True for virtual machines false for containers"
+  default     = false
 }

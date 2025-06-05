@@ -1,18 +1,18 @@
 source "incus" "vulnbox-image" {
-  image = "images:debian/12"
-  output_image = "vulnbox-image"
-  container_name = "${var.remote}:vulnbox-image-build"
-  reuse = true
+  image               = "images:debian/12"
+  output_image        = "vulnbox-image"
+  container_name      = "${var.remote}:vulnbox-image-build"
+  reuse               = true
   publish_remote_name = var.remote
-  virtual_machine = var.virtual_machine
+  virtual_machine     = var.virtual_machine
 
-  publish_properties =  {
+  publish_properties = {
     description = "Image for the servers where the vulnerable services will be hosted"
   }
 
   launch_config = {
-    "security.nesting" = true
-    "security.syscalls.intercept.mknod" = true
+    "security.nesting"                     = true
+    "security.syscalls.intercept.mknod"    = true
     "security.syscalls.intercept.setxattr" = true
   }
 }
@@ -21,7 +21,7 @@ build {
   sources = ["source.incus.vulnbox-image"]
 
   provisioner "shell" {
-    inline  = [
+    inline = [
       "apt-get update -y",
       "apt-get upgrade -y",
       "apt-get install -y sudo python-is-python3 python3 cron vim tcpdump tmux bash-completion openssh-server nano file util-linux openssh-sftp-server htop ncdu",
@@ -31,7 +31,7 @@ build {
     ]
   }
   provisioner "file" {
-    source = "${path.root}/../files/services/"
+    source      = "${path.root}/../files/services/"
     destination = "/root"
   }
 
