@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 ''' Deploy and configure ColosseumCTF on an incus cluster/server '''
 
-#!/usr/bin/env python3
 import argparse
 import subprocess
 import sys
@@ -76,10 +76,8 @@ def build_packer_templates(remote: str, instance_type: str) -> None:
 
     init_command = ["packer", "init", "packer/templates"]
     build_command = [
-            'packer', 'build', '-var',
-            f'remote={remote}', '-var',
-            f'virtual_machine={virtual_machine}',
-            'packer/templates'
+        'packer', 'build', '-var', f'remote={remote}', '-var',
+        f'virtual_machine={virtual_machine}', 'packer/templates'
     ]
 
     execute(init_command)
@@ -94,18 +92,24 @@ def parse_colosseum_configurations():
         if len(configurations["cluster"]["nodes"]) == 2:
             raise ValueError("Error: The number of nodes must not be 2")
 
-        if (configurations["colosseum"]["instances_type"] != "container" and
-            configurations["colosseum"]["instances_type"] != "virtual-machine"):
+        if (configurations["colosseum"]["instances_type"] != "container"
+                and configurations["colosseum"]["instances_type"]
+                != "virtual-machine"):
             raise ValueError("""Error: The value of 'instance_type' must be '
                              virtual-machine' or 'container'""")
 
         for _ in configurations["cluster"]["nodes"]:
-            if not valid_ipv4_address(ip:= configurations["cluster"]["nodes"][_]):
-                raise ValueError(f"Error: The value of {ip} must be a valid IPv4 address")
+            if not valid_ipv4_address(
+                    ip := configurations["cluster"]["nodes"][_]):
+                raise ValueError(
+                    f"Error: The value of {ip} must be a valid IPv4 address")
 
-        if (not isinstance(configurations["colosseum"]["player_number"], int) or
-            configurations["colosseum"]["player_number"] < 2):
-            raise ValueError("The value of 'player_number' must be an integer greater then 1")
+        if (not isinstance(configurations["colosseum"]["player_number"], int)
+                or configurations["colosseum"]["player_number"] < 2):
+            raise ValueError(
+                """The value of 'player_number' must be
+                an integer greater then 1"""
+            )
 
         return configurations["colosseum"], configurations["cluster"]
 
@@ -156,14 +160,13 @@ def setup_incus(settings: dict) -> None:
             }
         }
 
-    runner = ansible_runner.run(
-            private_data_dir="./ansible",
-            playbook="setup_incus.yaml",
-            inventory=inventory
-            )
+    runner = ansible_runner.run(private_data_dir="./ansible",
+                                playbook="setup_incus.yaml",
+                                inventory=inventory)
 
     if runner.rc != 0:
-        raise RuntimeError(f"The playbook setup_incus.yaml failed with error {runner.rc}")
+        raise RuntimeError(
+            f"The playbook setup_incus.yaml failed with error {runner.rc}")
 
 
 def deploy_colosseum(settings: dict, nodes_name: list) -> None:
@@ -177,7 +180,6 @@ def deploy_colosseum(settings: dict, nodes_name: list) -> None:
         "vulnboxes": {
             "hosts": vulnboxes,
         },
-
         "router": {
             "hosts": "router",
             "vars": {
@@ -199,14 +201,13 @@ def deploy_colosseum(settings: dict, nodes_name: list) -> None:
         }
     }
 
-    runner = ansible_runner.run(
-            private_data_dir="./ansible",
-            playbook="deploy_colosseum.yaml",
-            inventory=yaml.dump(inventory)
-            )
+    runner = ansible_runner.run(private_data_dir="./ansible",
+                                playbook="deploy_colosseum.yaml",
+                                inventory=yaml.dump(inventory))
 
     if runner.rc != 0:
-        raise RuntimeError(f"The playbook setup_incus.yaml failed with error {runner.rc}")
+        raise RuntimeError(
+            f"The playbook setup_incus.yaml failed with error {runner.rc}")
 
 
 if __name__ == '__main__':
@@ -217,10 +218,13 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    colosseum_configs, cluster_configurations = parse_colosseum_configurations()
+    colosseum_configs, cluster_configurations = parse_colosseum_configurations(
+    )
 
     if args.setup_incus:
         setup_incus(cluster_configurations)
 
-    build_packer_templates(colosseum_configs["remote"], colosseum_configs["instances_type"])
-    deploy_colosseum(colosseum_configs, list(cluster_configurations["nodes"].keys()))
+    build_packer_templates(colosseum_configs["remote"],
+                           colosseum_configs["instances_type"])
+    deploy_colosseum(colosseum_configs,
+                     list(cluster_configurations["nodes"].keys()))
