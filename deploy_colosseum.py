@@ -1,8 +1,10 @@
+''' Deploy and configure ColosseumCTF on an incus cluster/server '''
+
 #!/usr/bin/env python3
 import argparse
 import subprocess
 import sys
-from ipaddress import ip_address, IPv4Address, ip_network, IPv4Network
+from ipaddress import IPv4Address, IPv4Network, ip_address, ip_network
 
 import ansible_runner
 import yaml
@@ -37,6 +39,7 @@ def valid_ipv4_network(network: str) -> bool:
 
 
 def execute(cmd: list) -> None:
+    ''' Execute a command in the shell and print its output line by line '''
     print(f"[i] Executing the following command: {' '.join(cmd)}")
 
     try:
@@ -45,14 +48,15 @@ def execute(cmd: list) -> None:
                               universal_newlines=True,
                               text=True) as popen:
 
-            for stdout_line in iter(popen.stdout.readline, ""):
-                print(stdout_line, end="")
+            if popen.stdout is not None:
+                for stdout_line in iter(popen.stdout.readline, ""):
+                    print(stdout_line, end="")
 
-            popen.stdout.close()
-            return_code = popen.wait()
+                popen.stdout.close()
+                return_code = popen.wait()
 
-            if return_code:
-                raise subprocess.CalledProcessError(return_code, cmd)
+                if return_code:
+                    raise subprocess.CalledProcessError(return_code, cmd)
 
     except subprocess.CalledProcessError:
         print("[!] Fatal Error!")
@@ -63,39 +67,51 @@ def execute(cmd: list) -> None:
 
 
 def build_packer_templates(remote: str, instance_type: str) -> None:
+    ''' Build the packer templates for ColosseumCTF '''
+
     if instance_type == "virtual-machine":
         virtual_machine = "true"
     else:
         virtual_machine = "false"
 
     init_command = ["packer", "init", "packer/templates"]
-    build_command = ['packer', 'build', '-var', f'remote={remote}', '-var', f'virtual_machine={virtual_machine}', 'packer/templates']
+    build_command = [
+            'packer', 'build', '-var',
+            f'remote={remote}', '-var',
+            f'virtual_machine={virtual_machine}',
+            'packer/templates'
+    ]
 
     execute(init_command)
     execute(build_command)
 
 
 def parse_colosseum_configurations():
+    ''' Parse the colosseum configurations from the YAML file '''
     with open("colosseum_configs.yaml", 'r', encoding='UTF-8') as f:
         configurations = yaml.safe_load(f)
 
         if len(configurations["cluster"]["nodes"]) == 2:
             raise ValueError("Error: The number of nodes must not be 2")
 
-        if configurations["colosseum"]["instances_type"] != "container" and configurations["colosseum"]["instances_type"] != "virtual-machine":
-            raise ValueError("Error: The value of 'instance_type' must be 'virtual-machine' or 'container'")
+        if (configurations["colosseum"]["instances_type"] != "container" and
+            configurations["colosseum"]["instances_type"] != "virtual-machine"):
+            raise ValueError("""Error: The value of 'instance_type' must be '
+                             virtual-machine' or 'container'""")
 
         for _ in configurations["cluster"]["nodes"]:
-            if not valid_ipv4_address(configurations["cluster"]["nodes"][_]):
-                raise ValueError(f"Error: The value of {configurations["cluster"]["nodes"][_]} must be a valid IPv4 address")
+            if not valid_ipv4_address(ip:= configurations["cluster"]["nodes"][_]):
+                raise ValueError(f"Error: The value of {ip} must be a valid IPv4 address")
 
-        if not isinstance(configurations["colosseum"]["player_number"], int) or configurations["colosseum"]["player_number"] < 2:
+        if (not isinstance(configurations["colosseum"]["player_number"], int) or
+            configurations["colosseum"]["player_number"] < 2):
             raise ValueError("The value of 'player_number' must be an integer greater then 1")
 
         return configurations["colosseum"], configurations["cluster"]
 
 
 def setup_incus(settings: dict) -> None:
+    ''' Setup incus and ovn on the cluster nodes '''
     cluster_nodes = {}
     nodes_name = {}
 
@@ -151,6 +167,7 @@ def setup_incus(settings: dict) -> None:
 
 
 def deploy_colosseum(settings: dict, nodes_name: list) -> None:
+    ''' Deploy the ColosseumCTF on incus cluster/server '''
     vulnboxes = {}
 
     for t in settings["teams"]:
