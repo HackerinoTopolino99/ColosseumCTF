@@ -16,8 +16,8 @@ resource "incus_profile" "colosseum-profile" {
     type = "nic"
 
     properties = {
-      name = "eth0"
-      parent = "colosseum-wan"
+      name    = "eth0"
+      parent  = "colosseum-wan"
       nictype = "bridged"
     }
   }
@@ -27,7 +27,7 @@ resource "incus_profile" "colosseum-profile" {
     type = "nic"
 
     properties = {
-      name = "game"
+      name    = "game"
       network = "colosseum-network"
     }
   }

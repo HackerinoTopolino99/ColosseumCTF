@@ -3,6 +3,6 @@ variable "cluster_address" {
 }
 
 variable "nodes" {
+  type        = list(string)
   description = "List of nodes of the cluster"
-  type = list(string)
 }

@@ -10,8 +10,8 @@ resource "incus_storage_pool" "colosseum_pool" {
 
 resource "incus_storage_pool" "colosseum_pool_node" {
   for_each = length(var.nodes) > 1 ? toset(var.nodes) : toset([])
-  name   = "colosseum-pool"
-  driver = "dir"
+  name     = "colosseum-pool"
+  driver   = "dir"
 
   target = each.value
 }
