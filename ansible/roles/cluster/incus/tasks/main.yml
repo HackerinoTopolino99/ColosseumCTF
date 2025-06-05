@@ -1,140 +1,150 @@
 - name: Check ansible distribution
   meta: end_play
-  when: 'ansible_distribution not in ("Debian", "Ubuntu")' 
+  when: 'ansible_distribution not in ("Debian", "Ubuntu")'
 
 - name: Create apt keyring path
   file:
     path: /etc/apt/keyrings/
-    mode: 0755
+    mode: "0755"
     state: directory
 
 - name: Add Zabbly repository key
   uri:
     url: https://pkgs.zabbly.com/key.asc
     dest: /etc/apt/keyrings/ansible-zabbly.asc
-  become: yes
+  become: true
 
 - name: Get DPKG architecture
   shell: dpkg --print-architecture
   register: dpkg_architecture
   changed_when: false
-  check_mode: no
+  check_mode: false
 
 - name: Add Zabbly package source
   template:
     src: zabbly_repository.j2
     dest: /etc/apt/sources.list.d/ansible-zabbly-incus-stable.sources
-  become: yes
-  
+    mode: "0644"
+  become: true
+
 - name: Install Incus
   apt:
     name: incus
-    state: latest
-    update_cache: yes
-  become: yes
+    state: present
+    update_cache: true
+  become: true
 
 - name: "Install virtual machine requirements"
   apt:
     name:
       - qemu-system
       - qemu-utils
-    state: latest
-  become: yes
+    state: present
+  become: true
 
 - name: "Set subuid and subgid for use unpriviliged containers"
   shell: "usermod -v 1000000-1000999999 -w 1000000-1000999999 root"
-  become: yes
+  become: true
 
 - name: "Install rsync for clustering"
   apt:
     name: rsync
-    state: latest
-  become: yes
+    state: present
+  become: true
   when: ansible_play_hosts | length > 2
 
-- block:
-  - name: "Copy init file on incus server"
-    template:
-      src: templates/server.yaml.j2
-      dest: /tmp/init.yaml
 
-  - name: "Set up incus server"
-    shell: incus admin init --preseed < /tmp/init.yaml
-    become: yes
-
+- name: "Configure incus server"
   when: ansible_play_hosts | length == 1
-
-- block:
-  - name: Set server_name
-    set_fact:
-      server_name: "{{ nodes_names[inventory_hostname] }}"
-
-  - name: Set local as current host
-    set_fact:
-      server_address: "{{ inventory_hostname }}"
-
-  - block:
-    - name: "Copy init file on boostrap server"
+  block:
+    - name: "Copy init file on incus server"
       template:
-        src: templates/bootstrap.yaml.j2
+        src: templates/server.yaml.j2
         dest: /tmp/init.yaml
+        mode: "0644"
 
-    - name: "Set up bootstrap server"
+    - name: "Set up incus server"
       shell: incus admin init --preseed < /tmp/init.yaml
-      become: yes
+      become: true
 
-    when: inventory_hostname == server_1
 
-  - name: "Generate node token"
-    shell: "incus cluster --force-local --quiet add {{ server_name }}"
-    register: token
-    delegate_to: "{{ server_1 }}"
-    when: inventory_hostname != server_1
-    become: yes
-
-  - block:
-    - name: Wait 5s to avoid token use before valid
-      ansible.builtin.wait_for:
-        timeout: 5
-      delegate_to: "{{ server_1 }}"
-      when: 'token.changed'
-
-    - name: "Copy init file on other nodes"
-      template:
-        src: templates/cluster-member.yaml.j2
-        dest: /tmp/init.yaml
-
-    - name: "Set up cluster members"
-      throttle: 1
-      shell: incus admin init --preseed < /tmp/init.yaml
-      become: yes
-    
-    when: token.changed
-
-  - block:
-    - name: "Set ovn-northd-nb-db"
-      set_fact:
-        ovn_northd_nb_db: tcp:{{ server_1 }}:6641,tcp:{{ server_2 }}:6641,tcp:{{ server_3 }}:6641
-
-    - name: "Make ovn communicate with incus"
-      shell: "incus config set network.ovn.northbound_connection {{ ovn_northd_nb_db }}"
-      become: yes
-
-    when: inventory_hostname == server_1
-  
+- name: "Configure incus cluster"
   when: ansible_play_hosts | length > 2
+  block:
+    - name: Set server_name
+      set_fact:
+        server_name: "{{ nodes_names[inventory_hostname] }}"
 
-- block: 
-  - name: Upload incus certificate
-    copy:
-      src: ~/.config/incus/client.crt
-      dest: /tmp/client.crt
+    - name: Set local as current host
+      set_fact:
+        server_address: "{{ inventory_hostname }}"
 
-  - name: Trust client
-    shell: incus config trust add-certificate /tmp/client.crt
-    become: yes
+    - name: Copy init file
+      when: inventory_hostname == server_1
+      block:
+        - name: "Copy init file on boostrap server"
+          template:
+            src: templates/bootstrap.yaml.j2
+            dest: /tmp/init.yaml
+            mode: "0644"
 
+        - name: "Set up bootstrap server"
+          shell: incus admin init --preseed < /tmp/init.yaml
+          become: true
+
+
+    - name: "Generate node token"
+      shell: "incus cluster --force-local --quiet add {{ server_name }}"
+      register: token
+      delegate_to: "{{ server_1 }}"
+      when: inventory_hostname != server_1
+      become: true
+
+    - name: "Add node to the cluster"
+      when: token.changed
+      block:
+        - name: Wait 5s to avoid token use before valid
+          ansible.builtin.wait_for:
+            timeout: 5
+          delegate_to: "{{ server_1 }}"
+          when: 'token.changed'
+
+        - name: "Copy init file on other nodes"
+          template:
+            src: templates/cluster-member.yaml.j2
+            dest: /tmp/init.yaml
+            mode: "0644"
+
+        - name: "Set up cluster members"
+          throttle: 1
+          shell: incus admin init --preseed < /tmp/init.yaml
+          become: true
+
+    - name: "Add comunication between incus and ovn"
+      when: inventory_hostname == server_1
+      block:
+        - name: "Set ovn-northd-nb-db"
+          set_fact:
+            ovn_northd_nb_db: tcp:{{ server_1 }}:6641,tcp:{{ server_2 }}:6641,tcp:{{ server_3 }}:6641
+
+        - name: "Make ovn communicate with incus"
+          shell: "incus config set network.ovn.northbound_connection {{ ovn_northd_nb_db }}"
+          become: true
+
+
+- name: "Trust client"
   when: inventory_hostname == server_1
+  block:
+    - name: Upload client certificate
+      copy:
+        src: ~/.config/incus/client.crt
+        dest: /tmp/client.crt
+        mode: "0644"
+
+    - name: Add client certificate
+      shell: incus config trust add-certificate /tmp/client.crt
+      become: true
+
 
 - name: Add remote
   shell: incus remote add {{ remote }} {{ server_1 }} --accept-certificate
