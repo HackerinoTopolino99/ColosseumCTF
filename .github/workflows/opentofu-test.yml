@@ -1,0 +1,36 @@
+---
+name: OpenTofu Tests
+on:
+  push:
+    paths:
+      - '**.tf'
+      - '.github/workflows/opentofu-test.yml'
+  pull_request:
+    paths:
+      - '**.tf'
+jobs:
+  opentofu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+
+      - name: Check formatting
+        run: tofu fmt -check -recursive
+
+      - name: Run tfsec (security checks)
+        uses: aquasecurity/tfsec-action@v1.0.3
+
+      - name: Initialize OpenTofu
+        run: tofu init
+
+      - name: Validate OpenTofu configuration
+        run: tofu validate
+
+      - name: Generate OpenTofu plan
+        run: tofu plan -input=false
