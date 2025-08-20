@@ -29,4 +29,4 @@ jobs:
 
       - name: Check formatting
         run: |
-          packer fmt -check ./templates/packer
+          packer fmt -check ./packer/templates
