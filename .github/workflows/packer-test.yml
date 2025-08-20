@@ -1,0 +1,32 @@
+name: Testing code
+
+on:
+  push:
+    branches:
+      - "packer/**"
+      - ".github/workflows/packer-test.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@v2
+        with:
+          version: "latest"
+
+      - name: Initialize Packer Templates
+        run: |
+          packer init -upgrade ./packer/templates
+
+      - name: Validate Packer templates
+        run: |
+          packer validate ./packer/templates
+
+      - name: Check formatting
+        run: |
+          packer fmt -check ./templates/packer
