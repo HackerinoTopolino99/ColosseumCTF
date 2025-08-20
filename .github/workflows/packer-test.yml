@@ -1,4 +1,4 @@
-name: Testing code
+name: Testing packer templates
 
 on:
   push:
