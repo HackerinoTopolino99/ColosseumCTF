@@ -1,4 +1,5 @@
 terraform {
+  required_version = ">= 1.0.0"
   required_providers {
     incus = {
       source  = "lxc/incus"
@@ -6,3 +7,4 @@ terraform {
     }
   }
 }
+
