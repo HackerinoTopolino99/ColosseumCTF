@@ -40,6 +40,6 @@ jobs:
           tofu plan \
             -var="cluster_address=1.2.3.4" \
             -var="instances_type=container" \
-            -var="remote=git@github.com:example/repo.git" \
-            -var="teams=["team1","team2"]" \
-            -var="nodes=["node1","node2"]"
+            -var="remote=cluster" \
+            -var='teams=["team1","team2"]' \
+            -var='nodes=["node1","node2"]'
