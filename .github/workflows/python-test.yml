@@ -3,6 +3,7 @@ name: Python Tests
 on:
   push:
     paths:
+      - '.github/workflows/python-test.yml'
       - 'deploy_colosseum.py'
       - 'tests/test_deploy_colosseum.py'
 
