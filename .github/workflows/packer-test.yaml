@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "packer/**"
-      - ".github/workflows/packer-test.yml"
+      - ".github/workflows/packer-test.yaml"
 
 jobs:
   validate:

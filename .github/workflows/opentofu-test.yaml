@@ -3,11 +3,11 @@ name: OpenTofu Tests
 on:
   push:
     paths:
-      - '**.tf'
-      - '.github/workflows/opentofu-test.yml'
+      - "**.tf"
+      - ".github/workflows/opentofu-test.yaml"
   pull_request:
     paths:
-      - '**.tf'
+      - "**.tf"
 jobs:
   opentofu:
     runs-on: ubuntu-latest
@@ -41,5 +41,5 @@ jobs:
             -var="cluster_address=1.2.3.4" \
             -var="instances_type=container" \
             -var="remote=git@github.com:example/repo.git" \
-            -var='teams=["team1","team2"]' \
-            -var='nodes=["node1","node2"]'
+            -var="teams=["team1","team2"]" \
+            -var="nodes=["node1","node2"]"
