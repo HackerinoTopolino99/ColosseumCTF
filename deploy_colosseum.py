@@ -95,8 +95,7 @@ def parse_colosseum_configurations():
         if (configurations["colosseum"]["instances_type"] != "container"
                 and configurations["colosseum"]["instances_type"]
                 != "virtual-machine"):
-            raise ValueError("""Error: The value of 'instance_type' must be '
-                             virtual-machine' or 'container'""")
+            raise ValueError("Error: The value of 'instance_type' must be 'virtual-machine' or 'container'")
 
         for _ in configurations["cluster"]["nodes"]:
             if not valid_ipv4_address(
@@ -107,8 +106,7 @@ def parse_colosseum_configurations():
         if (not isinstance(configurations["colosseum"]["player_number"], int)
                 or configurations["colosseum"]["player_number"] < 2):
             raise ValueError(
-                """The value of 'player_number' must be
-                an integer greater then 1"""
+                "The value of 'player_number' must be an integer greater then 1"
             )
 
         return configurations["colosseum"], configurations["cluster"]
@@ -207,7 +205,7 @@ def deploy_colosseum(settings: dict, nodes_name: list) -> None:
 
     if runner.rc != 0:
         raise RuntimeError(
-            f"The playbook setup_incus.yaml failed with error {runner.rc}")
+            f"The playbook deploy_colosseum.yaml failed with error {runner.rc}")
 
 
 if __name__ == '__main__':
