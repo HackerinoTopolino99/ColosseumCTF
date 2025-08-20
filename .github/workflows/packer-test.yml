@@ -2,7 +2,7 @@ name: Testing packer templates
 
 on:
   push:
-    branches:
+    paths:
       - "packer/**"
       - ".github/workflows/packer-test.yml"
 
