@@ -1,3 +1,4 @@
+---
 - name: Generate ssh key for admins
   openssh_keypair:
     path: "out/colosseum_id_ed25519"
@@ -5,6 +6,7 @@
     force: true
   run_once: true
   delegate_to: localhost
+  connection: local
 
 - name: Copy host ssh key on the vulnbox
   authorized_key:
@@ -12,8 +14,11 @@
     key: "{{ lookup('file', 'out/colosseum_id_ed25519.pub') }}"
 
 - name: Create random password
-  ansible.builtin.set_fact:
-    root_password: "{{ lookup('ansible.builtin.password', '/dev/null', seed=inventory_hostname) }}"
+  set_fact:
+    root_password: >
+      "{{ lookup('ansible.builtin.password',
+      '/dev/null',
+      seed=inventory_hostname) }}"
 
 - name: Set the generated password as root password
   user:
@@ -21,14 +26,17 @@
     password: "{{ root_password | password_hash('sha512') }}"
 
 - name: Create Output Direcotry
-  local_action:
-    module: file
+  file:
     path: "out/vm_passwords"
     state: directory
+    mode: "0755"
+  delegate_to: localhost
+  connection: local
 
 - name: Save the password to a local file
-  local_action:
-    module: copy
+  copy:
     content: "{{ root_password }}\n"
     dest: "out/vm_passwords/{{ inventory_hostname }}.txt"
-
+    mode: "0644"
+  delegate_to: localhost
+  connection: local

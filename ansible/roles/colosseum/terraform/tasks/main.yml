@@ -1,3 +1,4 @@
+---
 - name: Deploy of the AD platform
   community.general.terraform:
     project_path: "{{ role_path }}/files/colosseum-infrastructure"
@@ -13,4 +14,3 @@
   run_once: true
   delegate_to: localhost
   connection: local
-

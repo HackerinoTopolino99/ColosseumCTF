@@ -1,3 +1,4 @@
+---
 - name: Install ovn-host
   package:
     name:
@@ -15,7 +16,10 @@
           - "ovn-central"
         state: present
         update_cache: true
-      when: inventory_hostname == server_1 or inventory_hostname == server_2 or inventory_hostname == server_3
+      when: >-
+        inventory_hostname == server_1 or |
+        inventory_hostname == server_2 or |
+        inventory_hostname == server_3
       become: true
 
     - name: Set local as current host
@@ -26,7 +30,7 @@
       template:
         src: templates/bootstrap-ovn-central.conf.j2
         dest: /etc/default/ovn-central
-        mode: '0644'
+        mode: "0644"
       when: inventory_hostname == server_1
       become: true
 
@@ -34,7 +38,7 @@
       template:
         src: templates/ovn-central.conf.j2
         dest: /etc/default/ovn-central
-        mode: '0644'
+        mode: "0644"
       when: inventory_hostname == server_2 or inventory_hostname == server_3
       become: true
 
@@ -42,12 +46,20 @@
       systemd_service:
         name: ovn-central
         state: restarted
-      when: inventory_hostname == server_1 or inventory_hostname == server_2 or inventory_hostname == server_3
+      when: >
+        inventory_hostname == server_1 or |
+        inventory_hostname == server_2 or |
+        inventory_hostname == server_3
       become: true
 
     - name: Configure Open vSwitch
-      command: >
-        ovs-vsctl set open_vswitch . external_ids:ovn-remote=tcp:{{ server_1 }}:6642,tcp:{{ server_2 }}:6642,tcp:{{ server_3 }}:6642 external_ids:ovn-encap-type=geneve external_ids:ovn-encap-ip={{ local }}
+      shell: >
+        ovs-vsctl set open_vswitch . \
+        external_ids:ovn-remote=\
+        tcp:{{ server_1 }}:6642,\
+        tcp:{{ server_2 }}:6642,\
+        tcp:{{ server_3 }}:6642 \
+        external_ids:ovn-encap-type=geneve external_ids:ovn-encap-ip={{ local }}
       become: true
 
 - name: Set up OVN in a single-node environment
@@ -58,10 +70,15 @@
         name:
           - "ovn-central"
           - "ovn-host"
-        state: latest
+        state: present
+        update_cache: true
       become: true
 
     - name: Configure Open vSwitch
-      command: >
-        ovs-vsctl set open_vswitch . external_ids:ovn-remote=unix:/run/ovn/ovnsb_db.sock external_ids:ovn-encap-type=geneve external_ids:ovn-encap-ip=127.0.0.1
+      shell: >-
+        ovs-vsctl set open_vswitch . \
+        external_ids:\
+        ovn-remote=unix:/run/ovn/ovnsb_db.sock \
+        external_ids:ovn-encap-type=geneve\
+        external_ids:ovn-encap-ip=127.0.0.1
       become: true

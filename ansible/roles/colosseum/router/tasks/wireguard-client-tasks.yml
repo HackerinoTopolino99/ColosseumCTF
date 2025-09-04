@@ -1,3 +1,4 @@
+---
 - name: Generate client private key
   shell: wg genkey
   register: client_private_key
@@ -11,17 +12,18 @@
     client_address: "10.80.{{ teams.index(player.0) + 1 }}.{{ player.1 }}"
 
 - name: "Generate client configuration"
-  local_action:
-    module: template
+  template:
     src: wg0_client.conf.j2
-    mode: 0600
+    mode: '0600'
     dest: "out/vpns/{{ player.0 }}/player{{ player.1 }}.conf"
     force: true
+  delegate_to: localhost
+  connection: local
 
 - name: "Adding Peer to the wireguard server"
   lineinfile:
     path: /etc/wireguard/wg0.conf
-    line: "[Peer]\nPublicKey = {{ client_public_key.stdout }}\nAllowedIPs = {{ client_address }}/32\n"
+    line: >
+      "[Peer]\nPublicKey = {{ client_public_key.stdout }}\n |
+      AllowedIPs = {{ client_address }}/32\n"
     insertafter: EOF
-
-

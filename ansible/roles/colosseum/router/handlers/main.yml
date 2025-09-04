@@ -1,4 +1,6 @@
+---
 - name: "Restart networking service"
   sysvinit:
     name: networking
     state: restarted
+

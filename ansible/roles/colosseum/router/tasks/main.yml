@@ -1,3 +1,4 @@
+---
 - name: Generate server private key
   shell: wg genkey
   register: server_private_key
@@ -9,7 +10,7 @@
 - name: "Generate server configuration"
   template:
     src: wg0_server.conf.j2
-    mode: 0600
+    mode: '0600'
     dest: /etc/wireguard/wg0.conf
 
 - name: "Set endpoint"
@@ -17,19 +18,21 @@
     endpoint: "{{ vpn_endpoint_address }}:51820"
 
 - name: "Delete existing output folder"
-  local_action:
-    module: file
+  file:
     path: "out/vpns/{{ item }}"
     state: absent
   loop: "{{ teams }}"
+  delegate_to: localhost
+  connection: local
 
 - name: "Create output folder"
-  local_action:
-    module: file
+  file:
     path: "out/vpns/{{ item }}"
     state: directory
-    recurse: yes
+    recurse: true
   loop: "{{ teams }}"
+  delegate_to: localhost
+  connection: local
 
 - name: Clients configuration
   include_tasks: wireguard-client-tasks.yml
@@ -62,7 +65,8 @@
 - name: "Add Vulnboxes static lease to dnsmasq"
   lineinfile:
     path: /etc/dnsmasq.conf
-    line: "dhcp-host=12:15:99:00:00:{{ '%02x' | format(teams.index(item) + 1) }},10.60.{{ teams.index(item) + 1 }}.1"
+    line: >
+      "dhcp-host=12:15:99:00:00:{{ '%02x' | format(teams.index(item) + 1) }},10.60.{{ teams.index(item) + 1 }}.1"
     insertafter: EOF
   loop: "{{ teams }}"
 
@@ -70,4 +74,3 @@
   sysvinit:
     name: dnsmasq
     state: restarted
-

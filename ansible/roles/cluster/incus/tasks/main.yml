@@ -1,3 +1,4 @@
+---
 - name: Check ansible distribution
   meta: end_play
   when: 'ansible_distribution not in ("Debian", "Ubuntu")'
@@ -53,7 +54,6 @@
   become: true
   when: ansible_play_hosts | length > 2
 
-
 - name: "Configure incus server"
   when: ansible_play_hosts | length == 1
   block:
@@ -66,7 +66,6 @@
     - name: "Set up incus server"
       shell: incus admin init --preseed < /tmp/init.yaml
       become: true
-
 
 - name: "Configure incus cluster"
   when: ansible_play_hosts | length > 2
@@ -92,7 +91,6 @@
           shell: incus admin init --preseed < /tmp/init.yaml
           become: true
 
-
     - name: "Generate node token"
       shell: "incus cluster --force-local --quiet add {{ server_name }}"
       register: token
@@ -107,7 +105,7 @@
           ansible.builtin.wait_for:
             timeout: 5
           delegate_to: "{{ server_1 }}"
-          when: 'token.changed'
+          when: "token.changed"
 
         - name: "Copy init file on other nodes"
           template:
@@ -125,12 +123,16 @@
       block:
         - name: "Set ovn-northd-nb-db"
           set_fact:
-            ovn_northd_nb_db: tcp:{{ server_1 }}:6641,tcp:{{ server_2 }}:6641,tcp:{{ server_3 }}:6641
+            ovn_northd_nb_db: >
+              tcp:{{ server_1 }}:6641,
+              tcp:{{ server_2 }}:6641,
+              tcp:{{ server_3 }}:6641
 
         - name: "Make ovn communicate with incus"
-          shell: "incus config set network.ovn.northbound_connection {{ ovn_northd_nb_db }}"
+          shell: >
+            "incus config set \
+             network.ovn.northbound_connection {{ ovn_northd_nb_db }}"
           become: true
-
 
 - name: "Trust client"
   when: inventory_hostname == server_1
@@ -144,7 +146,6 @@
     - name: Add client certificate
       shell: incus config trust add-certificate /tmp/client.crt
       become: true
-
 
 - name: Add remote
   shell: incus remote add {{ remote }} {{ server_1 }} --accept-certificate
