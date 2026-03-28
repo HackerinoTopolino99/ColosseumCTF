@@ -1,0 +1,165 @@
+---
+- name: Check ansible distribution
+  meta: end_play
+  when: 'ansible_distribution not in ("Debian")'
+
+- name: Install necessary packages
+  tags: apt
+  block:
+    - name: Install Incus
+      ansible.builtin.apt:
+        name: incus
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Install rsync for clustering
+      ansible.builtin.apt:
+        name: rsync
+        state: present
+      become: true
+      when: ansible_play_hosts | length > 2
+
+    - name: Install virtual machine requirements
+      ansible.builtin.apt:
+        name:
+          - qemu-system
+          - qemu-utils
+        state: present
+      become: true
+      # Add condition
+
+    - name: Enable Incus service unit
+      ansible.builtin.systemd_service:
+        name: incus.service
+        enabled: true
+        state: restarted
+
+    - name: Enable Incus socket unit
+      ansible.builtin.systemd_service:
+        name: incus.socket
+        enabled: true
+        state: restarted
+
+    - name: Enable Incus startup unit
+      ansible.builtin.systemd_service:
+        name: incus-startup.service
+        enabled: true
+        state: restarted
+
+- name: Configure subuid for root
+  ansible.builtin.lineinfile:
+    path: /etc/subuid
+    regexp: "^root:"
+    line: "root:1000000:1000000000"
+    state: present
+    create: true
+    mode: "0644"
+  become: true
+
+- name: Configure subgid for root
+  ansible.builtin.lineinfile:
+    path: /etc/subgid
+    regexp: "^root:"
+    line: "root:1000000:1000000000"
+    state: present
+    create: true
+    mode: "0644"
+  become: true
+
+- name: Check hosts numbers
+  ansible.builtin.meta: end_play
+  when: groups['cluster'] | length == 2
+
+- name: Set client listen address
+  ansible.builtin.command:
+    argv:
+      - incus
+      - --force-local
+      - config
+      - set
+      - core.https_address
+      - "{{ cluster_address }}"
+  when: >
+    groups['cluster'] | length == 1 or inventory_hostname == bootstrap_server
+  changed_when: true
+  become: true
+
+- name: Configure Incus cluster
+  when: groups['cluster'] | length > 2
+  block:
+    - name: Bootstrap cluster
+      ansible.builtin.command:
+        cmd: "incus --force-local cluster enable {{ inventory_hostname }}"
+      when: inventory_hostname == bootstrap_server
+      changed_when: true
+      register: ret
+      failed_when:
+        - ret.rc != 0
+        - "'Error: This server is already clustered' not in ret.stderr"
+      become: true
+
+    - name: Generate node token
+      ansible.builtin.command:
+        cmd: "incus cluster --force-local --quiet add {{ inventory_hostname }}"
+      register: token
+      delegate_to: "{{ bootstrap_server }}"
+      when: inventory_hostname != bootstrap_server
+      changed_when: true
+      failed_when:
+        - token.rc != 0
+        - "'Error: The cluster already has a member with name' not in token.stderr"
+      become: true
+
+    - name: Add node to the cluster
+      when: token.changed
+      block:
+        - name: Wait 5s to avoid token use before valid
+          ansible.builtin.wait_for:
+            timeout: 5
+          delegate_to: localhost
+          changed_when: false
+
+        - name: Copy init file on other nodes
+          ansible.builtin.template:
+            src: templates/cluster-member.yaml.j2
+            dest: /tmp/init.yaml
+            mode: "0644"
+
+        - name: Join cluster
+          throttle: 1
+          ansible.builtin.shell:
+            cmd: "incus admin init --preseed < /tmp/init.yaml"
+          changed_when: true
+          become: true
+
+- name: Trust client
+  when: inventory_hostname == bootstrap_server
+  block:
+    - name: Upload client certificate
+      ansible.builtin.copy:
+        src: ~/.config/incus/client.crt
+        dest: /tmp/client.crt
+        mode: "0644"
+
+    - name: Add client certificate
+      ansible.builtin.command:
+        cmd: "incus config trust add-certificate /tmp/client.crt"
+      register: ret
+      failed_when:
+        - ret.rc != 0
+        - "'Error: Certificate already in trust store' not in ret.stderr"
+      changed_when: true
+      become: true
+
+- name: Add remote
+  ansible.builtin.command:
+    cmd: "incus remote add {{ remote }} {{ cluster_address }} --accept-certificate"
+  register: ret
+  failed_when:
+    - ret.rc != 0
+    - remote not in ret.stderr
+  changed_when: true
+  run_once: true
+  connection: local
+  delegate_to: localhost

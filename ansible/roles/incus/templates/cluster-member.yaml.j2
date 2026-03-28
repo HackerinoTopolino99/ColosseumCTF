@@ -1,0 +1,6 @@
+---
+cluster:
+  server_name: {{ inventory_hostname }} 
+  enabled: true
+  server_address: {{ hostvars[inventory_hostname]['ansible_host'] }}:8443
+  cluster_token: {{ token.stdout }}
