@@ -1,7 +1,11 @@
 ---
 - name: Check ansible distribution
-  meta: end_play
+  ansible.builtin.meta: end_play
   when: 'ansible_distribution not in ("Debian")'
+
+- name: Check hosts numbers
+  ansible.builtin.meta: end_play
+  when: groups['cluster'] | length == 2
 
 - name: Install necessary packages
   tags: apt
@@ -15,10 +19,13 @@
 
     - name: Install rsync for clustering
       ansible.builtin.apt:
-        name: rsync
+        name:
+          - openvswitch-common
+          - openvswitch-switch
+          - rsync
         state: present
       become: true
-      when: ansible_play_hosts | length > 2
+      when: groups['cluster'] | length > 2
 
     - name: Install virtual machine requirements
       ansible.builtin.apt:
@@ -66,10 +73,6 @@
     create: true
     mode: "0644"
   become: true
-
-- name: Check hosts numbers
-  ansible.builtin.meta: end_play
-  when: groups['cluster'] | length == 2
 
 - name: Set client listen address
   ansible.builtin.command:
