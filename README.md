@@ -1,4 +1,4 @@
-# Colosseum
+# ColosseumCTF
 
 ## Settings
 The configuration file (configs.json) is divided in 3 sections:
