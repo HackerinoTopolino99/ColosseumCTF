@@ -1,4 +1,1 @@
-ansible_runner==2.4.1
 ansible==11.2.0
-PyYAML==6.0.2
-passlib==1.7.4
