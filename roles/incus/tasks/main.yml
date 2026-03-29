@@ -37,19 +37,6 @@
     - name: Enable Incus service unit
       ansible.builtin.systemd_service:
         name: incus.service
-        enabled: true
-        state: restarted
-
-    - name: Enable Incus socket unit
-      ansible.builtin.systemd_service:
-        name: incus.socket
-        enabled: true
-        state: restarted
-
-    - name: Enable Incus startup unit
-      ansible.builtin.systemd_service:
-        name: incus-startup.service
-        enabled: true
         state: restarted
 
 - name: Configure subuid for root
