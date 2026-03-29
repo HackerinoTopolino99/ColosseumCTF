@@ -20,8 +20,6 @@
     - name: Install rsync for clustering
       ansible.builtin.apt:
         name:
-          - openvswitch-common
-          - openvswitch-switch
           - rsync
         state: present
       become: true

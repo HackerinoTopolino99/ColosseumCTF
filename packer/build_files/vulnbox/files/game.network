@@ -1,0 +1,5 @@
+[Match]
+Name=game
+
+[Network]
+DHCP=ipv4

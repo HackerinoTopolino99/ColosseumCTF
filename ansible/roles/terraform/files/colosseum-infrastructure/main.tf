@@ -17,15 +17,14 @@ module "profile" {
   depends_on  = [module.storage, module.networks]
 }
 
-# resource "terraform_data" "images" {
-#   depends_on = [module.storage, module.networks]
-# 
-#   provisioner "local-exec" {
-#     command = "packer init . && packer build ."
-#     working_dir = "../../../../../packer/templates/"
-#   }
-#   
-# }
+ resource "terraform_data" "images" {
+   depends_on = [module.storage, module.networks]
+ 
+   provisioner "local-exec" {
+     command = "packer init . && packer build -var 'remote=${var.remote}' ."
+     working_dir = "../../../../../packer/"
+   }
+}
 # 
 # module "instances" {
 #   source     = "./modules/instances"

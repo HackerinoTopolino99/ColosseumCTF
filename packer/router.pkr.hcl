@@ -28,13 +28,14 @@ build {
       "rc-update add dnsmasq"
     ]
   }
+
   provisioner "file" {
-    source      = "${abspath(path.root)}/../files/router/interfaces"
+    source      = "${abspath(path.root)}/build_files/router/files/interfaces"
     destination = "/etc/network/interfaces"
   }
 
   provisioner "file" {
-    source      = "${abspath(path.root)}/../files/router/dnsmasq.conf"
+    source      = "${abspath(path.root)}/build_files/router/files/dnsmasq.conf"
     destination = "/etc/dnsmasq.conf"
   }
 }

@@ -1,5 +1,5 @@
 source "incus" "gameserver-image" {
-  image               = "images:debian/12"
+  image               = "images:debian/13"
   output_image        = "gameserver-image"
   container_name      = "${var.remote}:gameserver-image-build"
   reuse               = true
