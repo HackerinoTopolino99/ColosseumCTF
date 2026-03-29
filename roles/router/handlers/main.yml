@@ -1,6 +1,5 @@
 ---
 - name: "Restart networking service"
-  sysvinit:
+  ansible.builtin.sysvinit:
     name: networking
     state: restarted
-
