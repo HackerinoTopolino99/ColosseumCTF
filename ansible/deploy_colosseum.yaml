@@ -1,24 +1,29 @@
 ---
-- name: "Deploying Colosseum"
-- hosts: localhost
+- name: Deploying Colosseum
+  hosts: localhost
   gather_facts: false
   connection: local
   roles:
-    - "{ role: colosseum/terraform }"
+    - terraform
+  vars:
+    cluster_address: "{{ hostvars[groups['cluster'][0]]['ansible_host']}}"
+    nodes: "{{ groups['cluster'] }}"
+    instances_type: "container"
+    project_name: "ColosseumCTF"
 
-- name: "Configuring router of the game network"
-- hosts: router
-  gather_facts: false
-  roles:
-    - "{ role: colosseum/router }"
-
-- name: "Configuring Vulnboxes"
-- hosts: vulnboxes
-  gather_facts: false
-  roles:
-    - "{ role: colosseum/vulnboxes }"
-  tasks:
-    - name: "Get address from router"
-      systemd_service:
-        name: systemd-networkd
-        state: restarted
+# - name: "Configuring router of the game network"
+# - hosts: router
+#   gather_facts: false
+#   roles:
+#     - "{ role: colosseum/router }"
+#
+# - name: "Configuring Vulnboxes"
+# - hosts: vulnboxes
+#   gather_facts: false
+#   roles:
+#     - "{ role: colosseum/vulnboxes }"
+#   tasks:
+#     - name: "Get address from router"
+#       systemd_service:
+#         name: systemd-networkd
+#         state: restarted

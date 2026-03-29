@@ -19,12 +19,12 @@ variable "remote" {
   description = "Remote del progetto"
 }
 
-variable "teams" {
-  type        = list(string)
-  description = "List of teams that will partecipate"
-}
-
 variable "nodes" {
   type        = list(string)
   description = "List of nodes of a cluster"
+}
+
+variable "teams" {
+  type        = list(string)
+  description = "List of teams that will partecipate"
 }

@@ -1,7 +1,6 @@
 resource "incus_instance" "gameserver" {
   name     = "gameserver"
   image    = "gameserver-image"
-  profiles = ["colosseum-profile"]
   type     = var.instance_type
 
   config = {
@@ -33,7 +32,6 @@ resource "incus_instance" "vulnbox" {
 
   name     = "${var.teams[count.index]}-vulnbox"
   image    = "vulnbox-image"
-  profiles = ["colosseum-profile"]
   type     = var.instance_type
 
   config = {
@@ -66,7 +64,6 @@ resource "incus_instance" "vulnbox" {
 resource "incus_instance" "router" {
   name     = "router"
   image    = "router-image"
-  profiles = ["colosseum-profile"]
   type     = var.instance_type
 
   config = {

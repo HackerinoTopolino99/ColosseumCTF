@@ -1,5 +1,5 @@
 resource "incus_profile" "colosseum-profile" {
-  name = "colosseum-profile"
+  name = "default"
 
   device {
     type = "disk"
@@ -19,16 +19,6 @@ resource "incus_profile" "colosseum-profile" {
       name    = "eth0"
       parent  = "colosseum-wan"
       nictype = "bridged"
-    }
-  }
-
-  device {
-    name = "game"
-    type = "nic"
-
-    properties = {
-      name    = "game"
-      network = "colosseum-network"
     }
   }
 }

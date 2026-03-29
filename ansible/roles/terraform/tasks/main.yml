@@ -5,6 +5,8 @@
     force_init: true
     state: present
     complex_vars: true
+    no_color: true
+    provider_upgrade: true
     variables:
       cluster_address: "{{ cluster_address }}"
       instances_type: "{{ instances_type }}"

@@ -13,17 +13,13 @@ resource "incus_storage_pool" "colosseum_pool_node" {
   name     = "colosseum-pool"
   driver   = "dir"
 
-  target = each.value
+  target = trimspace(each.value)
 }
 
 resource "incus_storage_pool" "colosseum_pool_cluster" {
   count  = length(var.nodes) > 1 ? 1 : 0
   name   = "colosseum-pool"
   driver = "dir"
-
-  config = {
-    source = "/var/lib/incus/storage-pools/colosseum-pool"
-  }
 
   depends_on = [incus_storage_pool.colosseum_pool_node]
 }
