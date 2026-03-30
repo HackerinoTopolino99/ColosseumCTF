@@ -21,8 +21,8 @@ module "profile" {
    depends_on = [module.storage, module.networks]
  
    provisioner "local-exec" {
-     command = "packer init . && packer build -var 'remote=${var.remote}' ."
-     working_dir = "../../../../../packer/"
+     command = "packer init . && packer build -color=false -var 'remote=${var.remote}' ."
+     working_dir = "../../../../packer/"
    }
 }
 # 
