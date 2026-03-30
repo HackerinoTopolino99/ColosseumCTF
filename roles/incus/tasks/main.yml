@@ -9,20 +9,30 @@
 
 - name: Install necessary packages
   tags: apt
+  become: true
   block:
+    - name: Update all packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+
+    - name: Remove packages no longer needed
+      ansible.builtin.apt:
+        autoremove: true
+        clean: true
+        autoclean: true
+
     - name: Install Incus
       ansible.builtin.apt:
         name: incus
         state: present
         update_cache: true
-      become: true
 
     - name: Install rsync for clustering
       ansible.builtin.apt:
         name:
           - rsync
         state: present
-      become: true
       when: groups['cluster'] | length > 2
 
     - name: Install virtual machine requirements
@@ -31,13 +41,25 @@
           - qemu-system
           - qemu-utils
         state: present
-      become: true
-      # Add condition
+        # Add condition
 
     - name: Enable Incus service unit
       ansible.builtin.systemd_service:
         name: incus.service
         state: restarted
+        enabled: true
+
+    - name: Enable Incus socket unit
+      ansible.builtin.systemd_service:
+        name: incus.socket
+        state: restarted
+        enabled: true
+
+    - name: Enable Incus-startup service unit
+      ansible.builtin.systemd_service:
+        name: incus-startup.service
+        state: restarted
+        enabled: true
 
 - name: Configure subuid for root
   ansible.builtin.lineinfile:
