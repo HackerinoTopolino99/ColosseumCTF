@@ -12,8 +12,10 @@
   hosts: localhost
   gather_facts: false
   connection: local
+  tags: infrastructure
   roles:
-    - terraform
+    - role: terraform
+      tags: infrastructure
   vars:
     cluster_address: "{{ hostvars[groups['cluster'][0]]['ansible_host']}}"
     nodes: "{{ groups['cluster'] }}"
