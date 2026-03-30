@@ -12,15 +12,28 @@
   hosts: localhost
   gather_facts: false
   connection: local
-  tags: infrastructure
-  roles:
-    - role: terraform
+  tasks:
+    - name: Deploy Colosseum Infrastracture
+      ansible.builtin.import_role:
+        name: terraform
       tags: infrastructure
-  vars:
-    cluster_address: "{{ hostvars[groups['cluster'][0]]['ansible_host']}}"
-    nodes: "{{ groups['cluster'] }}"
-    instances_type: "container"
-    project_name: "ColosseumCTF"
+      vars:
+        cluster_address: "{{ hostvars[groups['cluster'][0]]['ansible_host']}}"
+        nodes: "{{ groups['cluster'] }}"
+        instances_type: "container"
+        project_name: "ColosseumCTF"
+
+    - name: Configure vulnbox hosts group
+      ansible.builtin.add_host:
+        host: "{{item}}-vulnbox"
+        group: "vulnbox"
+      loop: "{{ teams }}"
+
+- name: Configure vulnboxes
+  hosts: vulnbox
+  gather_facts: true
+  roles:
+    - vulnbox
 
 # - name: Configuring router of the game network
 #   hosts: router
