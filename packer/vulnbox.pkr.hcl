@@ -36,7 +36,7 @@ build {
 
   provisioner "file" {
     source      = "${path.root}/build_files/vulnbox/files/services/"
-    destination = "/root"
+    destination = "root"
   }
 
   provisioner "shell" {
