@@ -27,7 +27,7 @@ resource "incus_network" "gameNet-cluster" {
   depends_on = [incus_network.gameNet-node]
 
   config = {
-    "bridge.mtu" = "1450"
+    "bridge.mtu"             = "1450"
     "ipv4.address"           = "none"
     "ipv4.dhcp"              = "false"
     "ipv4.nat"               = "false"
@@ -67,7 +67,7 @@ resource "incus_network" "vulnNet-cluster" {
   depends_on = [incus_network.vulnNet-node]
 
   config = {
-    "bridge.mtu" = "1450"
+    "bridge.mtu"             = "1450"
     "ipv4.address"           = "none"
     "ipv4.dhcp"              = "false"
     "ipv4.nat"               = "false"
