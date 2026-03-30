@@ -17,7 +17,7 @@ module "profile" {
   depends_on  = [module.storage, module.networks]
 }
 
- resource "terraform_data" "images" {
+resource "terraform_data" "images" {
    depends_on = [module.storage, module.networks]
  
    provisioner "local-exec" {
@@ -25,12 +25,11 @@ module "profile" {
      working_dir = "../../../../packer/"
    }
 }
-# 
-# module "instances" {
-#   source     = "./modules/instances"
-#   depends_on = [terraform_data.images]
-# 
-#   instance_type = var.instances_type
-#   teams         = concat(["nop"], var.teams)
-#   project_name  = var.project_name
-# }
+
+module "instances" {
+  source     = "./modules/instances"
+  depends_on = [terraform_data.images]
+
+  instance_type = var.instances_type
+  teams         = concat(["nop"], var.teams)
+}

@@ -12,7 +12,7 @@ resource "incus_instance" "gameserver" {
     type = "nic"
     properties = {
       name    = "game"
-      network = "colosseum-network"
+      network = "gameNet"
       hwaddr  = "02:12:99:00:00:00"
     }
   }
@@ -22,7 +22,6 @@ resource "incus_instance" "gameserver" {
     type = "nic"
     properties = {
       network        = "colosseum-wan"
-      "ipv4.address" = "192.168.44.3"
     }
   }
 }
@@ -46,7 +45,7 @@ resource "incus_instance" "vulnbox" {
     type = "nic"
     properties = {
       name    = "game"
-      network = "colosseum-network"
+      network = "vulnNet"
       hwaddr  = format("12:15:99:00:00:%02x", count.index)
     }
   }
@@ -56,7 +55,6 @@ resource "incus_instance" "vulnbox" {
     type = "nic"
     properties = {
       network        = "colosseum-wan"
-      "ipv4.address" = "192.168.45.${count.index + 1}"
     }
   }
 }
@@ -76,6 +74,24 @@ resource "incus_instance" "router" {
     properties = {
       network        = "colosseum-wan"
       "ipv4.address" = "192.168.44.2"
+    }
+  }
+
+  device {
+    name = "eth1"
+    type = "nic"
+    properties = {
+      name    = "eth1"
+      network = "gameNet"
+    }
+  }
+
+  device {
+    name = "eth2"
+    type = "nic"
+    properties = {
+      name    = "eth2"
+      network = "vulnNet"
     }
   }
 }
