@@ -1,0 +1,15 @@
+auto eth0
+iface eth0 inet dhcp
+hostname $(hostname)
+
+auto eth1
+iface eth1 inet static
+    address 10.10.0.254
+    netmask 255.255.255.0
+hostname $(hostname)
+
+auto eth2
+iface eth2 inet static
+    address 10.60.255.254
+    netmask 255.255.0.0
+hostname $(hostname)

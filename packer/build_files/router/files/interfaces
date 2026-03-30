@@ -1,9 +1,0 @@
-auto eth0
-iface eth0 inet dhcp
-hostname $(hostname)
-
-auto game
-iface game inet static
-    address 10.254.0.1
-    netmask 255.0.0.0
-hostname $(hostname)
