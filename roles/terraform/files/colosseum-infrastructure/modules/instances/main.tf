@@ -41,6 +41,7 @@ resource "incus_instance" "gameserver" {
   name  = "gameserver"
   image = "gameserver-image"
   type  = var.instance_type
+  depends_on = [incus_instance.router]
 
   config = {
     "boot.autostart" = true
@@ -71,6 +72,7 @@ resource "incus_instance" "vulnbox" {
   name  = "${var.teams[count.index]}-vulnbox"
   image = "vulnbox-image"
   type  = var.instance_type
+  depends_on = [incus_instance.router]
 
   config = {
     "boot.autostart"                       = true
