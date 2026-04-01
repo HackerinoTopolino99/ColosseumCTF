@@ -34,9 +34,22 @@ build {
     destination = "/etc/systemd/network/game.network"
   }
 
+  provisioner "shell" {
+    inline = [
+      "chown -R systemd-network:systemd-network /etc/systemd/network/game.network",
+      "chmod 644 /etc/systemd/network/game.network"
+    ]
+  }
+
   provisioner "file" {
     source      = "${path.root}/build_files/vulnbox/files/services/"
     destination = "root"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "chown -R root:root /root",
+    ]
   }
 
   provisioner "shell" {
