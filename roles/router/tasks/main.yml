@@ -1,4 +1,8 @@
 ---
+- name: Debug
+  ansible.builtin.debug:
+    var: vpn_endpoint_address
+
 - name: Generate server private key
   ansible.builtin.command:
     cmd: "wg genkey"
@@ -13,17 +17,17 @@
   register: server_public_key
   changed_when: true
 
-- name: "Generate server configuration"
+- name: Generate server configuration
   ansible.builtin.template:
     src: wg0_server.conf.j2
     mode: '0600'
     dest: /etc/wireguard/wg0.conf
 
-- name: "Set endpoint"
+- name: Set endpoint
   ansible.builtin.set_fact:
     endpoint: "{{ vpn_endpoint_address }}:51820"
 
-- name: "Delete existing output folder"
+- name: Delete existing output folder
   ansible.builtin.file:
     path: "out/vpns/{{ item }}"
     state: absent
@@ -31,7 +35,7 @@
   delegate_to: localhost
   connection: local
 
-- name: "Create output folder"
+- name: Create output folder
   ansible.builtin.file:
     path: "out/vpns/{{ item }}"
     state: directory
@@ -42,11 +46,11 @@
 
 - name: Clients configuration
   ansible.builtin.include_tasks: wireguard-client-tasks.yml
-  loop: "{{ teams | product(range(1, vpn_players + 1)) | list }}"
+  loop: "{{ teams | product(range(1, players_number + 1)) | list }}"
   loop_control:
     loop_var: player
 
-- name: "Add server configuration to network"
+- name: Add server configuration to network
   ansible.builtin.blockinfile:
     path: /etc/network/interfaces
     append_newline: true
@@ -56,27 +60,10 @@
       pre-up wg-quick up /etc/wireguard/wg0.conf
   notify: Restart networking service
 
-- name: "Add Gameserver static lease to dnsmasq"
-  ansible.builtin.lineinfile:
-    path: /etc/dnsmasq.conf
-    line: "\ndhcp-host=02:12:99:00:00:00,10.10.0.1"
-    insertafter: EOF
-
-- name: "Add Nop team vulnbox static lease to dnsmasq"
-  ansible.builtin.lineinfile:
-    path: /etc/dnsmasq.conf
-    line: "dhcp-host=12:15:99:00:00:00,10.60.0.1"
-    insertafter: EOF
-
-- name: "Add Vulnboxes static lease to dnsmasq"
-  ansible.builtin.lineinfile:
-    path: /etc/dnsmasq.conf
-    line: >
-      "dhcp-host=12:15:99:00:00:{{ '%02x' | format(teams.index(item) + 1) }},10.60.{{ teams.index(item) + 1 }}.1"
-    insertafter: EOF
-  loop: "{{ teams }}"
-
-- name: "Restart dnsmasq"
-  ansible.builtin.sysvinit:
-    name: dnsmasq
-    state: restarted
+- name: Render vulnboxes static leases
+  ansible.builtin.template:
+    src: hosts.conf.j2
+    dest: /etc/dnsmasq.d/hosts.conf
+    mode: "0644"
+  notify:
+    - Restart dnsmasq

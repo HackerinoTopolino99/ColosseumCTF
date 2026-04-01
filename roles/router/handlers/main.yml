@@ -1,5 +1,10 @@
 ---
-- name: "Restart networking service"
+- name: Restart dnsmasq
+  ansible.builtin.sysvinit:
+    name: dnsmasq
+    state: restarted
+
+- name: Restart networking service
   ansible.builtin.sysvinit:
     name: networking
     state: restarted

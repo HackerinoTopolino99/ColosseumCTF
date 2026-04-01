@@ -9,15 +9,15 @@
   ansible.builtin.shell:
     cmd: |
       set -o pipefail #
-      echo -n '{{ server_private_key.stdout }}' | wg pubkey
-  register: server_public_key
+      echo -n '{{ client_private_key.stdout }}' | wg pubkey
+  register: client_public_key
   changed_when: true
 
 - name: Set client Address
   ansible.builtin.set_fact:
     client_address: "10.80.{{ teams.index(player.0) + 1 }}.{{ player.1 }}"
 
-- name: "Generate client configuration"
+- name: Generate client configuration
   ansible.builtin.template:
     src: wg0_client.conf.j2
     mode: '0600'
@@ -26,10 +26,13 @@
   delegate_to: localhost
   connection: local
 
-- name: "Adding Peer to the wireguard server"
-  ansible.builtin.lineinfile:
+- name: Adding Peer to the wireguard server
+  ansible.builtin.blockinfile:
     path: /etc/wireguard/wg0.conf
-    line: >
-      "[Peer]\nPublicKey = {{ client_public_key.stdout }}\n |
-      AllowedIPs = {{ client_address }}/32\n"
+    marker: "# {mark} {{ player.0 }} player {{ player.1 }}"
+    prepend_newline: true
+    block: |
+      [Peer]
+      PublicKey = {{ client_public_key.stdout }}
+      AllowedIPs = {{ client_address }}/32
     insertafter: EOF

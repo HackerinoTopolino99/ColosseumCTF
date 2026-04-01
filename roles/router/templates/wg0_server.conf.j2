@@ -1,7 +1,4 @@
 [Interface]
-Address = 10.254.0.2
+Address = 10.80.255.254
 ListenPort = 51820
 PrivateKey = {{ server_private_key.stdout }}
-
-PostUp = iptables -A FORWARD -i %i ! -d 10.80.0.0/24 -j REJECT; iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-PostDown = iptables -D FORWARD -i %i ! -d 10.80.0.0/24 -j REJECT; iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE

@@ -22,32 +22,64 @@
         nodes: "{{ groups['cluster'] }}"
         instances_type: "container"
         project_name: "ColosseumCTF"
+      register: router_public_ip
 
-    - name: Configure vulnbox hosts group
+    - name: Configure vulnboxes hosts group
       ansible.builtin.add_host:
         host: "{{item}}-vulnbox"
-        group: "vulnbox"
-      loop: "{{ teams }}"
+        group: "vulnboxes"
+        ansible_connection: "community.general.incus"
+        ansible_incus_remote: "{{ remote }}"
+        ansible_python_interpreter: python3
+      loop: "{{ ['nop'] + teams }}"
+      tags:
+        - vulnbox
+        - router
+
+    - name: Create output directory
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/out"
+        state: directory
+        mode: "0755"
+      tags:
+        - vulnbox
+        - router
 
 - name: Configure vulnboxes
-  hosts: vulnbox
+  hosts: vulnboxes
   gather_facts: true
   roles:
-    - vulnbox
+    - role: vulnbox
+      tags: vulnbox
 
-# - name: Configuring router of the game network
-#   hosts: router
-#   gather_facts: false
-#   roles:
-#     - router
-# 
-# - name: "Configuring Vulnboxes"
-#   hosts: vulnboxes
-#   gather_facts: false
-#   roles:
-#     - vulnboxes
-#   tasks:
-#     - name: "Get address from router"
-#       systemd_service:
-#         name: systemd-networkd
-#         state: restarted
+- name: Configuring router of the game network
+  hosts: router
+  gather_facts: false
+  tasks:
+    - name: Gather vulnboxes MAC addresses
+      ansible.builtin.setup:
+        filter:
+          - "game"
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      loop: "{{ groups['vulnboxes'] }}"
+      tags: router
+      register: vulnbox_mac_addresses
+
+    - name: Set static leases
+      ansible.builtin.set_fact:
+        static_leases: |-
+          "{{ static_leases | default({}) | combine({vulnbox_mac_addresses.results[i]['ansible_facts']['ansible_game']['macaddress']: '10.60.' ~ i ~ '.1'}) }}"
+      loop: "{{ groups['vulnboxes'] }}"
+      loop_control:
+        index_var: i
+      tags: router
+
+    - name: Configure ColosseumCTF router
+      ansible.builtin.import_role:
+        name: router
+      tags: router
+      vars:
+        static_leases: "{{ static_leases }}"
+        vpn_endpoint_address: |-
+          {{ hostvars[groups['cluster'][0]]['ansible_host'] }}
