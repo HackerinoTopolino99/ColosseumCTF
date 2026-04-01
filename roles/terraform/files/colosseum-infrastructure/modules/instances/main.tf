@@ -1,72 +1,13 @@
-resource "incus_instance" "gameserver" {
-  name     = "gameserver"
-  image    = "gameserver-image"
-  type     = var.instance_type
-
-  config = {
-    "boot.autostart" = true
-  }
-
-  device {
-    name = "game"
-    type = "nic"
-    properties = {
-      name    = "game"
-      network = "gameNet"
-      hwaddr  = "02:12:99:00:00:00"
-    }
-  }
-
-  device {
-    name = "eth0"
-    type = "nic"
-    properties = {
-      network        = "colosseum-wan"
-    }
-  }
-}
-
-resource "incus_instance" "vulnbox" {
-  count = length(var.teams)
-
-  name     = "${var.teams[count.index]}-vulnbox"
-  image    = "vulnbox-image"
-  type     = var.instance_type
-
-  config = {
-    "boot.autostart"                       = true
-    "security.nesting"                     = true
-    "security.syscalls.intercept.mknod"    = true
-    "security.syscalls.intercept.setxattr" = true
-  }
-
-  device {
-    name = "game"
-    type = "nic"
-    properties = {
-      name    = "game"
-      network = "vulnNet"
-      hwaddr  = format("12:15:99:00:00:%02x", count.index)
-    }
-  }
-
-  device {
-    name = "eth0"
-    type = "nic"
-    properties = {
-      network        = "colosseum-wan"
-    }
-  }
-}
-
 resource "incus_instance" "router" {
-  name     = "router"
-  image    = "router-image"
-  type     = var.instance_type
+  name  = "router"
+  image = "router-image"
+  type  = var.instance_type
 
   config = {
     "boot.autostart" = true
   }
+
+  target = var.nodes[0]
 
   device {
     name = "eth0"
@@ -92,6 +33,67 @@ resource "incus_instance" "router" {
     properties = {
       name    = "eth2"
       network = "vulnNet"
+    }
+  }
+}
+
+resource "incus_instance" "gameserver" {
+  name  = "gameserver"
+  image = "gameserver-image"
+  type  = var.instance_type
+
+  config = {
+    "boot.autostart" = true
+  }
+
+  device {
+    name = "game"
+    type = "nic"
+    properties = {
+      name    = "game"
+      network = "gameNet"
+      hwaddr  = "02:12:99:00:00:00"
+    }
+  }
+
+  device {
+    name = "eth0"
+    type = "nic"
+    properties = {
+      network = "colosseum-wan"
+    }
+  }
+}
+
+resource "incus_instance" "vulnbox" {
+  count = length(var.teams)
+
+  name  = "${var.teams[count.index]}-vulnbox"
+  image = "vulnbox-image"
+  type  = var.instance_type
+
+  config = {
+    "boot.autostart"                       = true
+    "security.nesting"                     = true
+    "security.syscalls.intercept.mknod"    = true
+    "security.syscalls.intercept.setxattr" = true
+  }
+
+  device {
+    name = "game"
+    type = "nic"
+    properties = {
+      name    = "game"
+      network = "vulnNet"
+      hwaddr  = format("12:15:99:00:00:%02x", count.index)
+    }
+  }
+
+  device {
+    name = "eth0"
+    type = "nic"
+    properties = {
+      network = "colosseum-wan"
     }
   }
 }

@@ -8,22 +8,22 @@ module "networks" {
 module "storage" {
   source = "./modules/storage"
 
-  nodes        = var.nodes
+  nodes = var.nodes
 }
 
 module "profile" {
   source = "./modules/profile"
 
-  depends_on  = [module.storage, module.networks]
+  depends_on = [module.storage, module.networks]
 }
 
 resource "terraform_data" "images" {
-   depends_on = [module.storage, module.networks]
- 
-   provisioner "local-exec" {
-     command = "packer init . && packer build -color=false -var 'remote=${var.remote}' ."
-     working_dir = "../../../../packer/"
-   }
+  depends_on = [module.storage, module.networks]
+
+  provisioner "local-exec" {
+    command     = "packer init . && packer build -color=false -var 'remote=${var.remote}' ."
+    working_dir = "../../../../packer/"
+  }
 }
 
 module "instances" {
@@ -32,4 +32,5 @@ module "instances" {
 
   instance_type = var.instances_type
   teams         = concat(["nop"], var.teams)
+  nodes         = var.nodes
 }

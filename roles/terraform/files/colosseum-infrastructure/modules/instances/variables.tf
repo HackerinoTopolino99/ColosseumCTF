@@ -12,3 +12,8 @@ variable "instance_type" {
     error_message = "The value must be container or virtual-machine"
   }
 }
+
+variable "nodes" {
+  type        = list(string)
+  description = "List of nodes of a cluster"
+}
