@@ -19,8 +19,11 @@ build {
       "apt-get update -y",
       "apt-get upgrade -y",
       "apt-get install -y bash-completion python3 python-is-python3 sudo",
-      "cp /etc/systemd/network/eth0.network /etc/systemd/network/game.network",
-      "sed -i 's/^Name=eth0/Name=game/' /etc/systemd/network/game.network"
     ]
+  }
+
+  provisioner "file" {
+    source = "${path.root}/build_files/gameserver/files/game.network"
+    destination = "/etc/systemd/network/game.network"
   }
 }
