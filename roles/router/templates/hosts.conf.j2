@@ -1,3 +1,3 @@
 {% for lease in static_leases | dict2items %}
-dhcp-host=tag:vulnbox,{{lease.key|lower}},{{lease.value|lower}}
+dhcp-host={{lease.key|lower}},{{lease.value|lower}}
 {% endfor %}

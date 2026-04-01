@@ -69,7 +69,7 @@
     - name: Set static leases
       ansible.builtin.set_fact:
         static_leases: |-
-          "{{ static_leases | default({}) | combine({vulnbox_mac_addresses.results[i]['ansible_facts']['ansible_game']['macaddress']: '10.60.' ~ i ~ '.1'}) }}"
+          {{ static_leases | default({}) | combine({vulnbox_mac_addresses.results[i]['ansible_facts']['ansible_game']['macaddress']: '10.60.' ~ i ~ '.1'}) }}
       loop: "{{ groups['vulnboxes'] }}"
       loop_control:
         index_var: i
@@ -83,3 +83,11 @@
         static_leases: "{{ static_leases }}"
         vpn_endpoint_address: |-
           {{ hostvars[groups['cluster'][0]]['ansible_host'] }}
+
+    - name: Make vulnboxes get their local IP address
+      ansible.builtin.service:
+        name: systemd-networkd
+        state: restarted
+      delegate_to: "{{ item }}"
+      loop: "{{ groups['vulnboxes'] }}"
+      tags: router

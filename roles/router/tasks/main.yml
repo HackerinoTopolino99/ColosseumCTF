@@ -65,5 +65,8 @@
     src: hosts.conf.j2
     dest: /etc/dnsmasq.d/hosts.conf
     mode: "0644"
-  notify:
-    - Restart dnsmasq
+
+- name: Restart dnsmasq
+  ansible.builtin.sysvinit:
+    name: dnsmasq
+    state: restarted
