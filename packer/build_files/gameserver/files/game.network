@@ -3,4 +3,6 @@ Name=game
 
 [Network]
 DHCP=ipv4
+
+[DHCPv4]
 UseGateway=false
