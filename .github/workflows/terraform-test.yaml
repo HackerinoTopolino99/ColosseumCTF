@@ -1,43 +1,43 @@
-name: OpenTofu Tests
+name: Terraform Tests
 
 on:
   push:
     paths:
       - "**.tf"
-      - ".github/workflows/opentofu-test.yaml"
+      - ".github/workflows/terraform-test.yaml"
   pull_request:
     paths:
       - "**.tf"
 jobs:
-  opentofu:
+  terraform:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ansible/roles/colosseum/terraform/files/colosseum-infrastructure/
+        working-directory: ansible/roles/terraform/files/colosseum-infrastructure/
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up OpenTofu
-        uses: opentofu/setup-opentofu@v1
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
         with:
           tofu_version: latest
 
       - name: Check formatting
-        run: tofu fmt -check -recursive
+        run: terraform fmt -check -recursive
 
       - name: Run tfsec (security checks)
         uses: aquasecurity/tfsec-action@v1.0.3
 
-      - name: Initialize OpenTofu
-        run: tofu init
+      - name: Initialize Terraform
+        run: terraform init
 
-      - name: Validate OpenTofu configuration
-        run: tofu validate
+      - name: Validate Terraform configuration
+        run: terraform validate
 
-      - name: Generate OpenTofu plan
+      - name: Generate Terraform plan
         run: |
-          tofu plan \
+          terraform plan \
             -var="cluster_address=1.2.3.4" \
             -var="instances_type=container" \
             -var="remote=cluster" \
