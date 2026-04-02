@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ansible/roles/terraform/files/colosseum-infrastructure/
+        working-directory: roles/terraform/files/colosseum-infrastructure/
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

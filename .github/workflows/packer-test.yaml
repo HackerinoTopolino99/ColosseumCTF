@@ -21,12 +21,12 @@ jobs:
 
       - name: Initialize Packer Templates
         run: |
-          packer init -upgrade ./packer/templates
+          packer init -upgrade ./packer
 
       - name: Validate Packer templates
         run: |
-          packer validate ./packer/templates
+          packer validate ./packer
 
       - name: Check formatting
         run: |
-          packer fmt -check ./packer/templates
+          packer fmt -check ./packer
