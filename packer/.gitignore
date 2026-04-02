@@ -1,3 +1,4 @@
 ## Custom
 build_files/vulnbox/files/services/*
 crash.log
+!**/.gitkeep
