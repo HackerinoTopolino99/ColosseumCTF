@@ -30,7 +30,7 @@ build {
   }
 
   provisioner "file" {
-    source = "${path.root}/build_files/vulnbox/files/game.network"
+    source      = "${abspath(path.root)}/build_files/vulnbox/files/game.network"
     destination = "/etc/systemd/network/game.network"
   }
 
@@ -42,7 +42,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "${path.root}/build_files/vulnbox/files/services/"
+    source      = "${abspath(path.root)}/build_files/vulnbox/files/services/"
     destination = "root"
   }
 
@@ -53,11 +53,11 @@ build {
   }
 
   provisioner "shell" {
-    script = "${path.root}/build_files/vulnbox/scripts/install_docker.sh"
+    script = "${abspath(path.root)}/build_files/vulnbox/scripts/install_docker.sh"
   }
 
   provisioner "shell" {
-    script = "${path.root}/build_files/vulnbox/scripts/setup_services.sh"
+    script = "${abspath(path.root)}/build_files/vulnbox/scripts/setup_services.sh"
   }
 
   provisioner "shell" {

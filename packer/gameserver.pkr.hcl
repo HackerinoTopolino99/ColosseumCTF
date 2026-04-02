@@ -30,7 +30,7 @@ build {
   }
 
   provisioner "file" {
-    source = "${path.root}/build_files/gameserver/files/game.network"
+    source      = "${abspath(path.root)}/build_files/gameserver/files/game.network"
     destination = "/etc/systemd/network/game.network"
   }
 }
