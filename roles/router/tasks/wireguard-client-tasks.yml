@@ -9,7 +9,7 @@
   ansible.builtin.shell:
     cmd: |
       set -o pipefail #
-      echo -n '{{ client_private_key.stdout }}' | wg pubkey
+      echo -n "{{ client_private_key.stdout }}" | wg pubkey
   register: client_public_key
   changed_when: true
 
@@ -20,7 +20,7 @@
 - name: Generate client configuration
   ansible.builtin.template:
     src: wg0_client.conf.j2
-    mode: '0600'
+    mode: "0600"
     dest: "out/vpns/{{ player.0 }}/player{{ player.1 }}.conf"
     force: true
   delegate_to: localhost

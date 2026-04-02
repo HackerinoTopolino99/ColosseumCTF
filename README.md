@@ -18,7 +18,6 @@ Every key must be associated with a correct subnet (e.g. 10.0.12.0/24)
 ### incus-cluster section
 The incus cluster section has the following keys:
 - nodes: dict. 
-- project: string. Name of the incus project
 - instances_type: string. Type of the incus instance. It must be container or virtual-machine
 - player_number: int. Number of players for team.
 - remote: string. Incus remote
