@@ -1,0 +1,41 @@
+---
+cluster:
+  hosts:
+    node1:
+      ansible_host: 
+    node2:
+      ansible_host: 
+    node3:
+      ansible_host: 
+  vars:
+    ansible_connection: ssh
+    ansible_user: root
+
+router:
+  hosts:
+    router
+  vars:
+    players_number: 6
+
+gameserver:
+  hosts:
+    gameserver
+
+instances:
+  children:
+    router:
+    gameserver:
+  vars:
+    type: container
+    ansible_user: root
+    ansible_connection: community.general.incus
+    ansible_incus_remote: "{{ remote }}"
+
+all:
+  vars:
+    remote: colosseum
+    teams:
+      - team1
+      - team2
+      - team3
+    ansible_python_interpreter: python3
