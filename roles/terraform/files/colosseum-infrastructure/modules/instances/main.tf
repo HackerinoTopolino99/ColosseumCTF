@@ -38,9 +38,9 @@ resource "incus_instance" "router" {
 }
 
 resource "incus_instance" "gameserver" {
-  name  = "gameserver"
-  image = "gameserver-image"
-  type  = var.instance_type
+  name       = "gameserver"
+  image      = "gameserver-image"
+  type       = var.instance_type
   depends_on = [incus_instance.router]
 
   config = {
@@ -69,9 +69,9 @@ resource "incus_instance" "gameserver" {
 resource "incus_instance" "vulnbox" {
   count = length(var.teams)
 
-  name  = "${var.teams[count.index]}-vulnbox"
-  image = "vulnbox-image"
-  type  = var.instance_type
+  name       = "${var.teams[count.index]}-vulnbox"
+  image      = "vulnbox-image"
+  type       = var.instance_type
   depends_on = [incus_instance.router]
 
   config = {
