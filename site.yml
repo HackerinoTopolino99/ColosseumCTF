@@ -1,5 +1,6 @@
 ---
-- hosts: cluster
+- name: Configure Incus Cluster
+  hosts: cluster
   gather_facts: true
   any_errors_fatal: true
   tasks:
@@ -26,7 +27,7 @@
 
     - name: Configure vulnboxes hosts group
       ansible.builtin.add_host:
-        host: "{{item}}-vulnbox"
+        host: "{{ item }}-vulnbox"
         group: "vulnboxes"
         ansible_connection: "community.general.incus"
         ansible_incus_remote: "{{ remote }}"
@@ -81,8 +82,8 @@
       tags: router
       vars:
         static_leases: "{{ static_leases }}"
-        vpn_endpoint_address: |-
-          {{ hostvars[groups['cluster'][0]]['ansible_host'] }}
+        # vpn_endpoint_address: |-
+        #   {{ hostvars[groups['cluster'][0]]['ansible_host'] }}
 
     - name: Make vulnboxes get their local IP address
       ansible.builtin.service:
