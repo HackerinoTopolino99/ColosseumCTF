@@ -21,6 +21,7 @@ build {
       "apk add iptables wireguard-tools-wg-quick python3 bash-completion dnsmasq vim",
       "mkdir -p /etc/wireguard",
       "rc-update add iptables",
+      "iptables -t nat -A POSTROUTING -s 10.80.0.0/16 -d 10.10.0.0/24 -j MASQUERADE",
       "iptables -t nat -A POSTROUTING -s 10.10.0.0/24 -d 10.60.0.0/16 -j SNAT --to-source 10.60.255.254",
       "iptables -t nat -A POSTROUTING -s 10.60.0.0/16 -d 10.60.0.0/16 -j SNAT --to-source 10.60.255.254",
       "iptables -t nat -A POSTROUTING -s 10.80.0.0/16 -d 10.60.0.0/16 -j SNAT --to-source 10.60.255.254",
