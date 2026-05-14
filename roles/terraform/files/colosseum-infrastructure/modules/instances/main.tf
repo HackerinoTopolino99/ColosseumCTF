@@ -1,4 +1,43 @@
 resource "incus_instance" "router" {
+  count = length(var.nodes) == 1 ? 1 : 0
+  name  = "router"
+  image = "router-image"
+  type  = var.instance_type
+
+  config = {
+    "boot.autostart" = true
+  }
+
+  device {
+    name = "eth0"
+    type = "nic"
+    properties = {
+      network        = "colosseum-wan"
+      "ipv4.address" = "192.168.44.2"
+    }
+  }
+
+  device {
+    name = "eth1"
+    type = "nic"
+    properties = {
+      name    = "eth1"
+      network = "gameNet"
+    }
+  }
+
+  device {
+    name = "eth2"
+    type = "nic"
+    properties = {
+      name    = "eth2"
+      network = "vulnNet"
+    }
+  }
+}
+
+resource "incus_instance" "router-cluster" {
+  count = length(var.nodes) > 2 ? 1 : 0
   name  = "router"
   image = "router-image"
   type  = var.instance_type
