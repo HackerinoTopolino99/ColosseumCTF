@@ -22,15 +22,15 @@ build {
     ]
   }
 
+  provisioner "file" {
+    source      = "${abspath(path.root)}/build_files/gameserver/files/game.network"
+    destination = "/etc/systemd/network/game.network"
+  }
+
   provisioner "shell" {
     inline = [
       "chown -R systemd-network:systemd-network /etc/systemd/network/game.network",
       "chmod 644 /etc/systemd/network/game.network"
     ]
-  }
-
-  provisioner "file" {
-    source      = "${abspath(path.root)}/build_files/gameserver/files/game.network"
-    destination = "/etc/systemd/network/game.network"
   }
 }
