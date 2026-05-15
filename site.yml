@@ -92,3 +92,12 @@
       delegate_to: "{{ item }}"
       loop: "{{ groups['vulnboxes'] }}"
       tags: router
+
+- name: Configure gameserver
+  hosts: gameserver
+  gather_facts: false
+  tasks:
+    - name: Provision ColosseumCTF gameserver
+      ansible.builtin.import_role:
+        name: gameserver
+      tags: gameserver
