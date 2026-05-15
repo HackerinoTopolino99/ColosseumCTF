@@ -3,6 +3,6 @@ Address = {{ client_address }}/32
 PrivateKey = {{ client_private_key.stdout }}
 
 [Peer]
-PublicKey = {{ server_public_key.stdout }}
-Endpoint = {{ endpoint }}
+PublicKey = {{ router_server_public_key.stdout }}
+Endpoint = {{ router_endpoint }}
 AllowedIPs = 10.60.0.0/16, 10.80.0.0/16, 10.10.0.0/24

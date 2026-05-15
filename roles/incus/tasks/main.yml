@@ -89,9 +89,9 @@
       - config
       - set
       - core.https_address
-      - "{{ cluster_address }}"
+      - "{{ incus_cluster_address }}"
   when: >
-    groups['cluster'] | length == 1 or inventory_hostname == bootstrap_server
+    groups['cluster'] | length == 1 or inventory_hostname == incus_bootstrap_server
   changed_when: true
   become: true
 
@@ -101,7 +101,7 @@
     - name: Bootstrap cluster
       ansible.builtin.command:
         cmd: "incus --force-local cluster enable {{ inventory_hostname }}"
-      when: inventory_hostname == bootstrap_server
+      when: inventory_hostname == incus_bootstrap_server
       changed_when: true
       register: ret
       failed_when:
@@ -109,42 +109,24 @@
         - "'Error: This server is already clustered' not in ret.stderr"
       become: true
 
-    - name: Generate node token
+    - name: Generate node incus_token
       ansible.builtin.command:
         cmd: "incus cluster --force-local --quiet add {{ inventory_hostname }}"
-      register: token
-      delegate_to: "{{ bootstrap_server }}"
-      when: inventory_hostname != bootstrap_server
+      register: incus_token
+      delegate_to: "{{ incus_bootstrap_server }}"
+      when: inventory_hostname != incus_bootstrap_server
       changed_when: true
       failed_when:
-        - token.rc != 0
-        - "'Error: The cluster already has a member with name' not in token.stderr"
+        - incus_token.rc != 0
+        - "'Error: The cluster already has a member with name' not in incus_token.stderr"
       become: true
-
-    - name: Add node to the cluster
-      when: token.changed
-      block:
-        - name: Wait 5s to avoid token use before valid
-          ansible.builtin.wait_for:
-            timeout: 5
-          delegate_to: localhost
-          changed_when: false
-
-        - name: Copy init file on other nodes
-          ansible.builtin.template:
-            src: templates/cluster-member.yaml.j2
-            dest: /tmp/init.yaml
-            mode: "0644"
-
-        - name: Join cluster
-          throttle: 1
-          ansible.builtin.shell:
-            cmd: "incus admin init --preseed < /tmp/init.yaml"
-          changed_when: true
-          become: true
+      notify:
+        - Wait 5s to avoid token use before valid
+        - Copy init file on other nodes
+        - Join cluster
 
 - name: Trust client
-  when: inventory_hostname == bootstrap_server
+  when: inventory_hostname == incus_bootstrap_server
   block:
     - name: Upload client certificate
       ansible.builtin.copy:
@@ -155,7 +137,7 @@
     - name: Add client certificate
       ansible.builtin.command:
         cmd: "incus config trust add-certificate /tmp/client.crt"
-      register: ret
+      register: incus_ret
       failed_when:
         - ret.rc != 0
         - "'Error: Certificate already in trust store' not in ret.stderr"
@@ -164,11 +146,11 @@
 
 - name: Add remote
   ansible.builtin.command:
-    cmd: "incus remote add {{ remote }} {{ cluster_address }} --accept-certificate"
-  register: ret
+    cmd: "incus remote add {{ remote }} {{ incus_cluster_address }} --accept-certificate"
+  register: incus_ret
   failed_when:
-    - ret.rc != 0
-    - remote not in ret.stderr
+    - incus_ret.rc != 0
+    - remote not in incus_ret.stderr
   changed_when: true
   run_once: true
   connection: local

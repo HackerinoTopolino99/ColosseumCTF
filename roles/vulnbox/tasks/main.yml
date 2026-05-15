@@ -15,7 +15,7 @@
 
 - name: Create random password
   ansible.builtin.set_fact:
-    root_password: >
+    vulnbox_root_password: >
       "{{ lookup('ansible.builtin.password',
       '/dev/null',
       seed=inventory_hostname) }}"
@@ -23,7 +23,7 @@
 - name: Set the generated password as root password
   ansible.builtin.user:
     name: root
-    password: "{{ root_password | password_hash('sha512') }}"
+    password: "{{ vulnbox_root_password | password_hash('sha512') }}"
 
 - name: Create Output Direcotry
   ansible.builtin.file:
@@ -35,7 +35,7 @@
 
 - name: Save the password to a local file
   ansible.builtin.copy:
-    content: "{{ root_password }}\n"
+    content: "{{ vulnbox_root_password }}\n"
     dest: "out/vm_passwords/{{ inventory_hostname }}.txt"
     mode: "0644"
   delegate_to: localhost

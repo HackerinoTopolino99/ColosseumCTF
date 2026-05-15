@@ -19,10 +19,10 @@
         name: terraform
       tags: infrastructure
       vars:
-        cluster_address: "{{ hostvars[groups['cluster'][0]]['ansible_host']}}"
-        nodes: "{{ groups['cluster'] }}"
-        instances_type: "container"
-        project_name: "ColosseumCTF"
+        terraform_cluster_address: "{{ hostvars[groups['cluster'][0]]['ansible_host'] }}"
+        terraform_nodes: "{{ groups['cluster'] }}"
+        terraform_instances_type: "container"
+        terraform_project_name: "ColosseumCTF"
       register: router_public_ip
 
     - name: Configure vulnboxes hosts group
@@ -81,9 +81,9 @@
         name: router
       tags: router
       vars:
-        static_leases: "{{ static_leases }}"
-        # vpn_endpoint_address: |-
-        #   {{ hostvars[groups['cluster'][0]]['ansible_host'] }}
+        router_static_leases: "{{ static_leases }}"
+        router_vpn_endpoint_address: |-
+          {{ vpn_endpoint_address | default(hostvars[groups['cluster'][0]]['ansible_host']) }}
 
     - name: Make vulnboxes get their local IP address
       ansible.builtin.service:

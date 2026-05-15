@@ -1,0 +1,19 @@
+---
+- name: Wait 5s to avoid incus_token use before valid
+  ansible.builtin.wait_for:
+    timeout: 5
+  delegate_to: localhost
+  changed_when: false
+
+- name: Copy init file on other nodes
+  ansible.builtin.template:
+    src: templates/cluster-member.yaml.j2
+    dest: /tmp/init.yaml
+    mode: "0644"
+
+- name: Join cluster
+  throttle: 1
+  ansible.builtin.shell:
+    cmd: "incus admin init --preseed < /tmp/init.yaml"
+  changed_when: true
+  become: true

@@ -8,11 +8,11 @@
     no_color: true
     provider_upgrade: true
     variables:
-      cluster_address: "{{ cluster_address }}"
-      instances_type: "{{ instances_type }}"
-      remote: "{{ remote }}"
-      teams: "{{ teams }}"
-      nodes: "{{ nodes }}"
+      cluster_address: "{{ terraform_cluster_address }}"
+      instances_type: "{{ terraform_instances_type }}"
+      remote: "{{ terraform_remote }}"
+      teams: "{{ terraform_teams }}"
+      nodes: "{{ terraform_nodes }}"
   run_once: true
   delegate_to: localhost
   connection: local
