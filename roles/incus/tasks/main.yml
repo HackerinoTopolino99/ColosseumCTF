@@ -26,7 +26,6 @@
       ansible.builtin.apt:
         name:
           - incus
-          - incus-ui
         state: present
         update_cache: true
 
