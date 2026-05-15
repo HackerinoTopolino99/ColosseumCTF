@@ -24,14 +24,15 @@
 
     - name: Install Incus
       ansible.builtin.apt:
-        name: incus
+        name:
+          - incus
+          - incus-ui
         state: present
         update_cache: true
 
     - name: Install rsync for clustering
       ansible.builtin.apt:
-        name:
-          - rsync
+        name: rsync
         state: present
       when: groups['cluster'] | length > 2
 
