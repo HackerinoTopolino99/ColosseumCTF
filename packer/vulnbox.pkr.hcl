@@ -24,7 +24,7 @@ build {
     inline = [
       "apt-get update -y",
       "apt-get upgrade -y",
-      "apt-get install -y python3 cron vim tcpdump tmux bash-completion openssh-server nano file util-linux openssh-sftp-server htop ncdu ca-certificates curl",
+      "apt-get install -y python3 cron vim tcpdump tmux bash-completion openssh-server nano file util-linux openssh-sftp-server htop ncdu ca-certificates curl ncurses-term",
       "echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config"
     ]
   }
